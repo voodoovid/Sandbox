@@ -646,7 +646,7 @@
       <ol class="defs">
         <li><i class="bd">1</i><div><b>Wind direction</b><p>Where the wind is coming <em>from</em>, in words. "From the NW" means it blows out of the north-west toward the south-east. It says <em>Calm</em> when the wind is under 0.3 km/h.</p></div></li>
         <li><i class="bd">2</i><div><b>Compass ring</b><p>N, E, S and W, with a tick every 10°. North is at the top.</p></div></li>
-        <li><i class="bd">3</i><div><b>Wind arrow</b><p>The dot sits on the side the wind comes from, and the arrow points the way it is blowing. The dashed streaks flow the same way, faster in stronger wind. The arrow sways a little when the wind is gusty, and fades when it is calm.</p></div></li>
+        <li><i class="bd">3</i><div><b>Wind arrow</b><p>The dot sits on the side the wind comes from, and the arrow points the way it is blowing. The dashed streaks flow the same way, faster in stronger wind. The arrow sways a little when the wind is gusty, and fades when it is calm. If live readings stop for 15 seconds, the streaks and sway freeze, so movement always means data is arriving.</p></div></li>
         <li><i class="bd">4</i><div><b>Wind speed</b><p>The big number: the wind right now, in km/h. It is smoothed so it glides instead of jumping. If the live stream pauses, it shows the station's one-minute average until the stream returns.</p></div></li>
         <li><i class="bd">5</i><div><b>Speed ring</b><p>The blue ring fills as the wind rises: about three-tenths of the way round at 10 km/h, six-tenths at 30 km/h, and all the way round at 60 km/h or more. Light winds get extra room so they are easy to see.</p></div></li>
         <li><i class="bd">6</i><div><b>Gust marker</b><p>The gold tick on the ring marks the gust, the strongest puff of the last minute. It shows only when the gust is at least 0.5 km/h above the current speed, so in steady wind it stays hidden.</p></div></li>
@@ -778,7 +778,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.80";
+  const VERSION = "v0.81";
   const REST = "https://swd.weatherflow.com/swd/rest";
   const WS_URL = "wss://ws.weatherflow.com/swd/data";
   const KEY = "sandboxToken";
@@ -969,10 +969,12 @@
       wind.sDir = (wind.sDir + angDiff(wind.sDir, wind.dir) * (1 - Math.exp(-dt * 3)) + 360) % 360;
     }
     const v = wind.sSpeed;
+    // No live wind reading for a while: freeze all motion so movement always means data is arriving.
+    const stale = wind.lastRapid > 0 && Date.now() - wind.lastRapid > LIVE_WINDOW;
 
     // needle with gust-driven wobble
     const gustier = Math.max(0, wind.gust - v);
-    const amp = reduced ? 0 : Math.min(6, gustier * 0.3) * Math.min(1, v / 5);
+    const amp = (reduced || stale) ? 0 : Math.min(6, gustier * 0.3) * Math.min(1, v / 5);
     const wob = amp * (Math.sin(now / 430) + 0.6 * Math.sin(now / 197 + 1.3));
     needle.setAttribute("transform", `rotate(${(wind.sDir + wob).toFixed(2)} 150 150)`);
 
@@ -993,15 +995,16 @@
     } else { gtick.setAttribute("opacity", "0"); }
 
     // dashed stream inside the dial, moving the way the wind blows
-    if (!reduced) phase = (phase + (14 + v * 5) * dt) % 24;
-    const lo = wind.has ? Math.min(0.75, 0.22 + v / 40) : 0;
+    if (!reduced && !stale) phase = (phase + (14 + v * 5) * dt) % 24;
+    const lo = wind.has ? (stale ? 0.12 : Math.min(0.75, 0.22 + v / 40)) : 0;
     flowLines.forEach((ln, i) => {
       ln.setAttribute("stroke-dashoffset", (-(phase + (i % 3) * 5)).toFixed(2));
       ln.setAttribute("stroke-opacity", lo.toFixed(2));
     });
 
     // wind across the card: long, soft, curving wisps that drift and sway (rain is short, straight and bright)
-    if (!reduced && cw > 0) {
+    if (stale) { cx.clearRect(0, 0, cw, ch); parts.length = 0; }
+    else if (!reduced && cw > 0) {
       const want = wind.has ? Math.round(8 + Math.min(34, v * 1.2)) : 0;
       while (parts.length < want) parts.push(spawn());
       if (parts.length > want) parts.length = want;
