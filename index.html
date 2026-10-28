@@ -284,7 +284,7 @@
         <p class="temp" id="temp">--<sup>°C</sup></p>
         <div class="side">
           <div class="side-item"><div class="lab">Feels like</div><div class="val" id="feels-val">--</div><div class="sub" id="feels-how">&nbsp;</div></div>
-          <div class="side-item fc-only"><div class="lab" id="rain-lab">Rain today</div><div class="val" id="t-rain">--</div><div class="sub" id="t-rainsub">&nbsp;</div></div>
+          <div class="side-item fc-only"><div class="lab" id="rain-lab">Rain today</div><div class="val" id="t-rain">--</div><div class="sub" id="t-rainsub">&nbsp;</div><div class="sub" id="t-rmin">&nbsp;</div></div>
           <div class="side-item"><div class="lab">Rain, last minute</div><div class="val" id="t-rainmin">--</div><div class="sub word" id="t-rainword">&nbsp;</div></div>
         </div>
       </div>
@@ -355,7 +355,6 @@
         <div class="tile"><div class="lab"><span data-icon="thermo" style="display:grid"></span>Dew point</div><div class="val" id="t-dewv">--</div><div class="sub" id="t-dewsub">--</div></div>
         <div class="tile"><div class="lab"><span data-icon="thermo" style="display:grid"></span>Wet bulb</div><div class="val" id="t-wet">--</div><div class="sub" id="t-delta">--</div></div>
         <div class="tile"><div class="lab"><span data-icon="gauge" style="display:grid"></span>Air density</div><div class="val" id="t-dens">--</div><div class="sub" id="t-stn">--</div></div>
-        <div class="tile fc-only"><div class="lab"><span data-icon="rain" style="display:grid"></span>Rain time today</div><div class="val" id="t-rmin">--</div><div class="sub" id="t-rminsub">--</div></div>
         <div class="tile fc-only"><div class="lab"><span data-icon="rain" style="display:grid"></span>Rain yesterday</div><div class="val" id="t-ryest">--</div><div class="sub" id="t-ryestsub">--</div></div>
         <div class="tile"><div class="lab"><span data-icon="bolt" style="display:grid"></span>Lightning</div><div class="val" id="t-ltg">--</div><div class="sub" id="t-ltgsub">--</div></div>
         <div class="tile fc-only"><div class="lab"><span data-icon="bolt" style="display:grid"></span>Lightning 1 hr</div><div class="val" id="t-ltgh">--</div><div class="sub" id="t-ltghsub">--</div></div>
@@ -414,7 +413,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.71";
+  const VERSION = "v0.72";
   const REST = "https://swd.weatherflow.com/swd/rest";
   const WS_URL = "wss://ws.weatherflow.com/swd/data";
   const KEY = "sandboxToken";
@@ -839,10 +838,9 @@
     const dens = cur.air_density != null ? cur.air_density : airDensity(temp, rh, pres);
     $("t-dens").innerHTML = `${num(dens, 3)}<small>kg/m³</small>`;
     $("t-stn").textContent = `Station ${num(pres)} mb`;
-    $("t-rmin").innerHTML = cur.precip_minutes_local_day != null ? `${Math.round(cur.precip_minutes_local_day)}<small>min</small>` : "--";
-    $("t-rminsub").textContent = cur.precip_minutes_local_yesterday != null ? `Yesterday ${Math.round(cur.precip_minutes_local_yesterday)} min` : "Loading";
+    $("t-rmin").textContent = cur.precip_minutes_local_day != null ? `${Math.round(cur.precip_minutes_local_day)} min of rain` : "\u00a0";
     $("t-ryest").innerHTML = cur.precip_accum_local_yesterday != null ? `${num(cur.precip_accum_local_yesterday)}<small>mm</small>` : "--";
-    $("t-ryestsub").textContent = today != null ? `Today ${num(today)} mm` : "Loading";
+    $("t-ryestsub").textContent = cur.precip_minutes_local_yesterday != null ? `${Math.round(cur.precip_minutes_local_yesterday)} min of rain` : "Loading";
     const l1 = cur.lightning_strike_count_last_1hr, l3 = cur.lightning_strike_count_last_3hr, lastE = cur.lightning_strike_last_epoch;
     $("t-ltgh").innerHTML = l1 != null ? `${l1}<small>strikes</small>` : "--";
     let lsub = l3 != null ? `3 hr: ${l3}` : "Loading";
