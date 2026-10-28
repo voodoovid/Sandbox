@@ -414,7 +414,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.7";
+  const VERSION = "v0.71";
   const REST = "https://swd.weatherflow.com/swd/rest";
   const WS_URL = "wss://ws.weatherflow.com/swd/data";
   const KEY = "sandboxToken";
@@ -547,15 +547,16 @@
     const T = t + 273.15, es = 6.1078 * Math.pow(10, 7.5 * t / (t + 237.3)), pv = es * rh / 100 * 100, p = pMb * 100;
     return (p - pv) / (287.05 * T) + pv / (461.495 * T);
   }
-  // Rain intensity in mm per hour: light under 2.5, moderate under 7.6, heavy under 50, violent above.
-  function rainWord(mmh, ptype) {
-    // Tempest's hail detection is experimental and misfires in heavy rain, so hail is never shown.
+  // Rain intensity in mm per hour, using Tempest's own wording: very light under 0.25, light under 1, moderate under 4,
+  // heavy under 16, very heavy under 50, extreme above that. (Hail is never shown: Tempest's hail detection is experimental.)
+  function rainWord(mmh) {
     if (!(mmh > 0)) return "No rain";
-    if (mmh < 0.5) return "Drizzle";
-    if (mmh < 2.5) return "Light rain";
-    if (mmh < 7.6) return "Moderate rain";
-    if (mmh < 50) return "Heavy rain";
-    return "Violent rain";
+    if (mmh < 0.25) return "Very light rain";
+    if (mmh < 1) return "Light rain";
+    if (mmh < 4) return "Moderate rain";
+    if (mmh < 16) return "Heavy rain";
+    if (mmh < 50) return "Very heavy rain";
+    return "Extreme rain";
   }
   const dewWord = (d) => d < 5 ? "Dry" : d < 10 ? "Comfortable" : d < 16 ? "Slightly humid" : d < 21 ? "Humid" : "Muggy";
   const uvLabel = (u) => u < 3 ? "Low" : u < 6 ? "Moderate" : u < 8 ? "High" : u < 11 ? "Very high" : "Extreme";
@@ -820,7 +821,7 @@
     // rain in the last minute, with a word for how hard it is falling (mm/h = mm per minute x 60)
     const perHour = rain * 60 / (interval || 1);
     $("t-rainmin").innerHTML = `${num(rain, 2)}<small>mm</small>`;
-    $("t-rainword").textContent = rainWord(perHour, ptype);
+    $("t-rainword").textContent = rainWord(perHour);
 
     $("t-ltg").innerHTML = ltgCount ? `${ltgCount}<small>strikes</small>` : "None";
     $("t-ltgsub").textContent = ltgCount ? `Average ${ltgDist} km away` : "Nothing this minute";
