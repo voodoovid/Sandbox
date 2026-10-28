@@ -380,6 +380,7 @@
         <div class="tile"><div class="lab"><span data-icon="bolt" style="display:grid"></span>Lightning</div><div class="val" id="t-ltg">--</div><div class="sub" id="t-ltgsub">--</div></div>
         <div class="tile fc-only"><div class="lab"><span data-icon="bolt" style="display:grid"></span>Lightning 1 hr</div><div class="val" id="t-ltgh">--</div><div class="sub" id="t-ltghsub">--</div></div>
         <div class="tile"><div class="lab"><span data-icon="battery" style="display:grid"></span>Sensor battery</div><div class="val" id="t-batt">--</div><div class="sub" id="t-int">--</div></div>
+        <div class="tile" id="t-hwbox"><div class="lab"><span data-icon="gauge" style="display:grid"></span>Sensor info</div><div class="val" id="t-fw">--</div><div class="sub" id="t-hw">Signal -- · Up --</div></div>
       </div>
     </section>
 
@@ -434,7 +435,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.75";
+  const VERSION = "v0.76";
   const REST = "https://swd.weatherflow.com/swd/rest";
   const WS_URL = "wss://ws.weatherflow.com/swd/data";
   const KEY = "sandboxToken";
@@ -738,6 +739,30 @@
   let lastPres = null;    // station pressure from the sensor
   let lastObs = null;     // latest full observation
   let rainExtra = 0, rainSeenT = 0;   // live rain added on top of the fetched daily total
+  const battHist = [];                // recent battery voltage readings: { t (s), v }
+  const hw = { fw: null, hubFw: null, rssi: null, hubRssi: null, uptime: null };   // firmware, signal, uptime when Tempest provides them
+
+  function fmtUp(sec) {
+    if (sec == null || isNaN(sec)) return "n/a";
+    const d = Math.floor(sec / 86400), h = Math.floor((sec % 86400) / 3600), m = Math.floor((sec % 3600) / 60);
+    return d ? `${d}d ${h}h` : h ? `${h}h ${m}m` : `${m}m`;
+  }
+  function showHardware() {
+    $("t-fw").textContent = hw.fw != null ? `Firmware ${hw.fw}` : "Firmware n/a";
+    const sig = hw.rssi != null ? `${Math.round(hw.rssi)} dBm` : "Signal n/a";
+    $("t-hw").textContent = `${sig} · Up ${fmtUp(hw.uptime)}`;
+    const extra = [hw.hubFw != null ? `Hub firmware ${hw.hubFw}` : "", hw.hubRssi != null ? `Hub signal ${Math.round(hw.hubRssi)} dBm` : ""].filter(Boolean).join(" · ");
+    $("t-hwbox").title = extra;
+  }
+  // Battery trend over up to 30 minutes of readings (a rising voltage in daylight hints that the panel is charging it).
+  function battTrend(t, v) {
+    if (!battHist.length || battHist[battHist.length - 1].t !== t) battHist.push({ t, v });
+    while (battHist.length && t - battHist[0].t > 1800) battHist.shift();
+    const mins = Math.round((t - battHist[0].t) / 60);
+    if (mins < 10) return "Trend: measuring";
+    const d = v - battHist[0].v;
+    return d > 0.02 ? `\u2197 Rising over ${mins} min` : d < -0.02 ? `\u2198 Falling over ${mins} min` : `\u2192 Steady over ${mins} min`;
+  }
 
   async function findStation() {
     setCheck("stations", "wait", "Looking up your station");
@@ -749,6 +774,11 @@
       const dev = (s.devices || []).find((d) => d.device_type === "ST");
       if (!dev) throw new Error("This station has no Tempest sensor attached.");
       station = { id: s.station_id, name: s.name || "Home", deviceId: dev.device_id };
+      const hub = (s.devices || []).find((d) => d.device_type === "HB");
+      if (dev.firmware_revision != null) hw.fw = dev.firmware_revision;
+      if (hub && hub.firmware_revision != null) hw.hubFw = hub.firmware_revision;
+      log("Sensor fields: " + Object.keys(dev).filter((k) => !/serial|id$|meta/i.test(k)).join(", "));
+      showHardware();
       $("place").textContent = station.name;
       setCheck("stations", "pass", `Found ${station.name}` + (list.length > 1 ? `, the first of ${list.length}` : ""));
       log(`Station ${station.id}, sensor ${station.deviceId}`);
@@ -804,6 +834,15 @@
         $("t-ltg").textContent = "Detected"; $("t-ltgsub").textContent = `${m.evt[1]} km away`;
         log(`Lightning ${m.evt[1]} km away`); break;
       case "evt_precip": log("Rain started"); break;
+      case "device_status": case "hub_status": {
+        const hubMsg = m.type === "hub_status";
+        log(`${m.type} fields: ` + Object.keys(m).filter((k) => !/serial|id$/i.test(k)).join(", "));
+        if (m.firmware_revision != null) hubMsg ? (hw.hubFw = m.firmware_revision) : (hw.fw = m.firmware_revision);
+        if (m.rssi != null) hubMsg ? (hw.hubRssi = m.rssi) : (hw.rssi = m.rssi);
+        if (m.hub_rssi != null) hw.hubRssi = m.hub_rssi;
+        if (m.uptime != null && !hubMsg) hw.uptime = m.uptime;
+        showHardware(); break;
+      }
       default: log(`Message: ${m.type}`);
     }
   }
@@ -847,7 +886,7 @@
     $("t-ltgsub").textContent = ltgCount ? `Average ${ltgDist} km away` : "Nothing this minute";
 
     $("t-batt").innerHTML = `${num(batt, 2)}<small>V</small>`;
-    $("t-int").textContent = interval ? `Reports every ${interval} min` : "Sensor voltage";
+    $("t-int").textContent = battTrend(time, batt);
 
     // other readings: the sensor's own values, filled in from the forecast feed where it provides them
     const dp = cur.dew_point != null ? cur.dew_point : dewPoint(temp, rh);
@@ -1054,6 +1093,9 @@
     }
     demoFc = { daily, cur: { conditions: "Partly Cloudy", icon: "partly-cloudy-night", sea_level_pressure: 1016.4, pressure_trend: "falling", precip_accum_local_day: 1.2, precip_accum_local_yesterday: 4.8, precip_minutes_local_day: 38, precip_minutes_local_yesterday: 190, lightning_strike_count_last_1hr: 0, lightning_strike_count_last_3hr: 2, lightning_strike_last_epoch: Date.now() / 1000 - 5400 } };
     if (!unitOnly) { fc = demoFc; renderForecast({ forecast: { daily }, current_conditions: fc.cur }); }
+    Object.assign(hw, { fw: 179, hubFw: 194, rssi: -58, hubRssi: -52, uptime: 3 * 86400 + 5 * 3600 });
+    showHardware();
+    battHist.push({ t: Date.now() / 1000 - 1500, v: 2.58 });
     showObs([Date.now() / 1000, 3.1, 5.4, 9.2, 225, 0, 1009.8, 11.6, 78, 4200, 1.4, 180, 0.4, 1, 0, 0, 2.62, 1]);
     let sp = 5.4, dr = 225;
     const tick = () => {
