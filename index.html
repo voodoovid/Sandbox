@@ -76,6 +76,17 @@
   .status.demo { color: var(--warm); border-color: rgba(255,207,122,0.4); }
   .status.demo i { background: var(--warm); }
   @keyframes beat { 0%,100% { box-shadow: 0 0 0 0 rgba(95,211,160,0.6); } 50% { box-shadow: 0 0 0 6px rgba(95,211,160,0); } }
+  .mode {
+    display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--soft);
+    padding: 8px 13px; border: 1px solid var(--line); border-radius: 999px; background: var(--card);
+  }
+  .mode i { position: relative; width: 28px; height: 16px; border-radius: 999px; background: rgba(255,255,255,0.18); transition: background .2s; }
+  .mode i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: transform .2s; }
+  .mode[aria-pressed="true"] { color: var(--air); border-color: rgba(127,212,245,0.45); background: rgba(127,212,245,0.1); }
+  .mode[aria-pressed="true"] i { background: var(--air); }
+  .mode[aria-pressed="true"] i::after { transform: translateX(12px); background: #0b2231; }
+  body.unit-only .fc-only { display: none !important; }
+  @media (max-width: 420px) { .mode span { display: none; } .mode { padding: 8px 10px; } }
   .gear {
     position: relative; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
     border: 1px solid var(--line); background: var(--card); color: var(--soft); font-size: 20px; padding: 0;
@@ -258,6 +269,7 @@
       <span>Sandbox</span><span class="ver" id="ver"></span>
     </div>
     <div class="actions">
+      <button class="mode" id="mode" type="button" aria-pressed="false" title="Show only what the unit measures: no forecast"><i></i><span>Unit only</span></button>
       <div class="status" id="status" role="status"><i></i><span id="status-text">Offline</span></div>
       <button class="gear" id="gear" type="button" aria-label="Settings"><span data-icon="gear" style="display:grid"></span><span class="dot"></span></button>
     </div>
@@ -272,13 +284,13 @@
         <p class="temp" id="temp">--<sup>°C</sup></p>
         <div class="side">
           <div class="side-item"><div class="lab">Feels like</div><div class="val" id="feels-val">--</div><div class="sub" id="feels-how">&nbsp;</div></div>
-          <div class="side-item"><div class="lab" id="rain-lab">Rain today</div><div class="val" id="t-rain">--</div><div class="sub" id="t-rainsub">&nbsp;</div></div>
+          <div class="side-item fc-only"><div class="lab" id="rain-lab">Rain today</div><div class="val" id="t-rain">--</div><div class="sub" id="t-rainsub">&nbsp;</div></div>
           <div class="side-item"><div class="lab">Rain, last minute</div><div class="val" id="t-rainmin">--</div><div class="sub word" id="t-rainword">&nbsp;</div></div>
         </div>
       </div>
-      <div class="cond-line"><span class="ic" id="cond-ic" data-icon="cloud"></span><span id="cond">Waiting for data</span></div>
-      <div class="now-meta"><span id="hilo"></span></div>
-      <div class="sun-row" id="sun-row"></div>
+      <div class="cond-line fc-only"><span class="ic" id="cond-ic" data-icon="cloud"></span><span id="cond">Waiting for data</span></div>
+      <div class="now-meta fc-only"><span id="hilo"></span></div>
+      <div class="sun-row fc-only" id="sun-row"></div>
       <div class="stamp" id="stamp">Waiting for the first reading</div>
     </section>
 
@@ -343,10 +355,10 @@
         <div class="tile"><div class="lab"><span data-icon="thermo" style="display:grid"></span>Dew point</div><div class="val" id="t-dewv">--</div><div class="sub" id="t-dewsub">--</div></div>
         <div class="tile"><div class="lab"><span data-icon="thermo" style="display:grid"></span>Wet bulb</div><div class="val" id="t-wet">--</div><div class="sub" id="t-delta">--</div></div>
         <div class="tile"><div class="lab"><span data-icon="gauge" style="display:grid"></span>Air density</div><div class="val" id="t-dens">--</div><div class="sub" id="t-stn">--</div></div>
-        <div class="tile"><div class="lab"><span data-icon="rain" style="display:grid"></span>Rain time today</div><div class="val" id="t-rmin">--</div><div class="sub" id="t-rminsub">--</div></div>
-        <div class="tile"><div class="lab"><span data-icon="rain" style="display:grid"></span>Rain yesterday</div><div class="val" id="t-ryest">--</div><div class="sub" id="t-ryestsub">--</div></div>
+        <div class="tile fc-only"><div class="lab"><span data-icon="rain" style="display:grid"></span>Rain time today</div><div class="val" id="t-rmin">--</div><div class="sub" id="t-rminsub">--</div></div>
+        <div class="tile fc-only"><div class="lab"><span data-icon="rain" style="display:grid"></span>Rain yesterday</div><div class="val" id="t-ryest">--</div><div class="sub" id="t-ryestsub">--</div></div>
         <div class="tile"><div class="lab"><span data-icon="bolt" style="display:grid"></span>Lightning</div><div class="val" id="t-ltg">--</div><div class="sub" id="t-ltgsub">--</div></div>
-        <div class="tile"><div class="lab"><span data-icon="bolt" style="display:grid"></span>Lightning 1 hr</div><div class="val" id="t-ltgh">--</div><div class="sub" id="t-ltghsub">--</div></div>
+        <div class="tile fc-only"><div class="lab"><span data-icon="bolt" style="display:grid"></span>Lightning 1 hr</div><div class="val" id="t-ltgh">--</div><div class="sub" id="t-ltghsub">--</div></div>
         <div class="tile"><div class="lab"><span data-icon="battery" style="display:grid"></span>Sensor battery</div><div class="val" id="t-batt">--</div><div class="sub" id="t-int">--</div></div>
       </div>
     </section>
@@ -402,10 +414,11 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.5";
+  const VERSION = "v0.6";
   const REST = "https://swd.weatherflow.com/swd/rest";
   const WS_URL = "wss://ws.weatherflow.com/swd/data";
   const KEY = "sandboxToken";
+  const MODE_KEY = "sandboxUnitOnly";
   const DEMO = location.hash === "#demo";
   const reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -463,6 +476,10 @@
     del() { try { localStorage.removeItem(KEY); } catch {} }
   };
   let token = DEMO ? "" : store.get();
+  // Unit-only switch: when on, no forecast is requested or shown; only what the sensor itself reports.
+  let unitOnly = false;
+  try { unitOnly = localStorage.getItem(MODE_KEY) === "1"; } catch {}
+  let demoFc = null;
 
   // ---------- log (never prints the token) ----------
   function mask(s) { return token ? String(s).split(token).join("•••") : String(s); }
@@ -882,6 +899,7 @@
         station_id: station.id, units_temp: "c", units_wind: "kph",
         units_pressure: "mb", units_precip: "mm", units_distance: "km"
       });
+      if (unitOnly) return;   // switched to unit-only while this was loading
       const daily = (data.forecast && data.forecast.daily) || [];
       const hourly = (data.forecast && data.forecast.hourly) || [];
       if (!daily.length) throw new Error("The forecast came back empty.");
@@ -917,7 +935,7 @@
     }
     if (await findStation()) {
       connectWS();
-      loadForecast(false);
+      if (unitOnly) setCheck("fc", "", "Off: unit only mode"); else loadForecast(false);
     } else {
       setCheck("ws", "", "Skipped until the station is found");
       setCheck("fc", "", "Skipped until the station is found");
@@ -953,6 +971,28 @@
 
   $("rerun").addEventListener("click", () => { stop(); station = null; log("Running the tests again"); start(); });
 
+  function applyMode() {
+    document.body.classList.toggle("unit-only", unitOnly);
+    $("mode").setAttribute("aria-pressed", String(unitOnly));
+    if (unitOnly) {
+      fc = null;
+      setCheck("fc", "", "Off: unit only mode");
+    } else if (DEMO) {
+      fc = demoFc;
+      if (demoFc) renderForecast({ forecast: { daily: demoFc.daily }, current_conditions: demoFc.cur });
+    } else if (station && token) {
+      loadForecast(false);
+    } else setCheck("fc", "", "Needs a token");
+    if (lastObs) showObs(lastObs);
+    showPressure();
+  }
+  $("mode").addEventListener("click", () => {
+    unitOnly = !unitOnly;
+    try { localStorage.setItem(MODE_KEY, unitOnly ? "1" : "0"); } catch {}
+    log(unitOnly ? "Unit only mode on: forecast off" : "Unit only mode off: forecast on");
+    applyMode();
+  });
+
   // iOS suspends sockets in the background; reconnect when back in view.
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState !== "visible" || !station || !token) return;
@@ -968,7 +1008,7 @@
     if (ws && ws.readyState === 1 && lastMsgAt && Date.now() - lastMsgAt > 30000) setStatus("quiet");
   }, 5000);
   setInterval(() => {
-    if (station && token && document.visibilityState === "visible") loadForecast(true);
+    if (station && token && !unitOnly && document.visibilityState === "visible") loadForecast(true);
   }, 30 * 60 * 1000);
 
   // =====================================================================
@@ -987,8 +1027,8 @@
       const k = kinds[(d * 3) % kinds.length], base = 11 + 4 * Math.sin(d / 1.7);
       daily.push({ day_start_local: s0 + d * 86400, conditions: k[0], icon: k[1], air_temp_high: base + 3, air_temp_low: base - 4, precip_probability: k[1].includes("rain") ? 60 : d % 3 ? 10 : 0, sunrise: s0 + d * 86400 + 7.6 * 3600, sunset: s0 + d * 86400 + 17.2 * 3600 });
     }
-    fc = { daily, cur: { conditions: "Partly Cloudy", icon: "partly-cloudy-night", sea_level_pressure: 1016.4, pressure_trend: "falling", precip_accum_local_day: 1.2, precip_accum_local_yesterday: 4.8, precip_minutes_local_day: 38, precip_minutes_local_yesterday: 190, lightning_strike_count_last_1hr: 0, lightning_strike_count_last_3hr: 2, lightning_strike_last_epoch: Date.now() / 1000 - 5400 } };
-    renderForecast({ forecast: { daily }, current_conditions: fc.cur });
+    demoFc = { daily, cur: { conditions: "Partly Cloudy", icon: "partly-cloudy-night", sea_level_pressure: 1016.4, pressure_trend: "falling", precip_accum_local_day: 1.2, precip_accum_local_yesterday: 4.8, precip_minutes_local_day: 38, precip_minutes_local_yesterday: 190, lightning_strike_count_last_1hr: 0, lightning_strike_count_last_3hr: 2, lightning_strike_last_epoch: Date.now() / 1000 - 5400 } };
+    if (!unitOnly) { fc = demoFc; renderForecast({ forecast: { daily }, current_conditions: fc.cur }); }
     showObs([Date.now() / 1000, 3.1, 5.4, 9.2, 225, 0, 1009.8, 11.6, 78, 4200, 1.4, 180, 0.4, 1, 0, 0, 2.62, 1]);
     let sp = 5.4, dr = 225;
     const tick = () => {
@@ -1002,6 +1042,8 @@
   }
 
   setStatus("off");
+  document.body.classList.toggle("unit-only", unitOnly);
+  $("mode").setAttribute("aria-pressed", String(unitOnly));
   if (DEMO) demo(); else start();
 })();
 </script>
