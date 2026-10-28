@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1b2531">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sandbox">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Sandbox</title>
+<style>
+  :root {
+    --slate:   #1b2531;  /* page */
+    --panel:   #233040;  /* raised surfaces */
+    --rule:    #33445a;  /* hairlines */
+    --ink:     #eef3f7;  /* primary text */
+    --soft:    #a9b8c9;  /* secondary text */
+    --air:     #8fd0ec;  /* wind / live accent */
+    --pass:    #6fd3a4;
+    --pending: #f2c14e;
+    --fail:    #f07a6a;
+    --round: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif;
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh;
+    background: var(--slate);
+    color: var(--ink);
+    font: 16px/1.45 var(--sans);
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    padding: calc(env(safe-area-inset-top) + 18px) 16px calc(env(safe-area-inset-bottom) + 32px);
+  }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  button, input { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--air); outline-offset: 2px; border-radius: 8px; }
+
+  /* ---------- top bar ---------- */
+  .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+  .brand { font: 600 20px/1 var(--round); letter-spacing: 0.1px; }
+  .brand small { font: 400 13px var(--sans); color: var(--soft); margin-left: 8px; }
+  .status {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; font-weight: 600; color: var(--soft);
+    padding: 6px 12px; border: 1px solid var(--rule); border-radius: 999px;
+  }
+  .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--soft); }
+  .status.live { color: var(--pass); border-color: rgba(111,211,164,0.4); }
+  .status.live i { background: var(--pass); animation: beat 2s ease-in-out infinite; }
+  .status.quiet { color: var(--pending); border-color: rgba(242,193,78,0.4); }
+  .status.quiet i { background: var(--pending); }
+  @keyframes beat { 0%,100% { box-shadow: 0 0 0 0 rgba(111,211,164,0.6); } 50% { box-shadow: 0 0 0 6px rgba(111,211,164,0); } }
+
+  /* ---------- hero: temp + wind dial ---------- */
+  .hero { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; margin-bottom: 26px; }
+  .place { font-size: 15px; color: var(--soft); margin: 0 0 4px; }
+  .temp { font: 300 88px/0.95 var(--round); letter-spacing: -2px; margin: 0; }
+  .temp sup { font-size: 0.42em; font-weight: 400; vertical-align: 0.95em; margin-left: 2px; letter-spacing: 0; }
+  .feels { font-size: 16px; color: var(--soft); margin: 8px 0 0; }
+  .stamp { font-size: 13px; color: var(--soft); margin: 4px 0 0; opacity: 0.85; }
+
+  .dial { width: 150px; height: 150px; position: relative; }
+  .dial svg { width: 100%; height: 100%; display: block; }
+  .dial .needle { transform-origin: 75px 75px; transition: transform 1.2s cubic-bezier(.3,.8,.3,1); }
+  .dial .readout { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; pointer-events: none; }
+  .dial .spd { font: 600 26px/1 var(--round); }
+  .dial .unit { font-size: 12px; color: var(--soft); margin-top: 3px; }
+  .dial { margin-bottom: 22px; }
+  .dial .from { position: absolute; left: 0; right: 0; top: 100%; margin-top: 6px; text-align: center; font-size: 13px; color: var(--soft); white-space: nowrap; }
+
+  /* ---------- readings ---------- */
+  .readings {
+    display: grid; grid-template-columns: 1fr 1fr; margin: 0 0 28px;
+    border-top: 1px solid var(--rule);
+  }
+  .readings div { padding: 12px 0; border-bottom: 1px solid var(--rule); }
+  .readings div:nth-child(odd) { padding-right: 14px; border-right: 1px solid var(--rule); }
+  .readings div:nth-child(even) { padding-left: 14px; }
+  .readings dt { font-size: 13px; color: var(--soft); }
+  .readings dd { margin: 2px 0 0; font: 600 20px/1.2 var(--round); }
+
+  /* ---------- sections ---------- */
+  section { margin-bottom: 28px; }
+  h2 { font: 600 17px/1.2 var(--round); margin: 0 0 12px; }
+
+  .panel { background: var(--panel); border-radius: 16px; padding: 16px; }
+
+  /* token */
+  .token-row { display: flex; gap: 10px; }
+  .token-row input {
+    flex: 1; min-width: 0; padding: 12px 14px; font-size: 16px;
+    background: var(--slate); border: 1px solid var(--rule); border-radius: 12px;
+  }
+  .token-row input::placeholder { color: var(--soft); opacity: 0.8; }
+  .btn {
+    border: 0; border-radius: 12px; padding: 0 18px; min-height: 46px;
+    font-weight: 600; cursor: pointer; background: var(--air); color: #0f2230;
+  }
+  .btn.ghost { background: transparent; color: var(--soft); border: 1px solid var(--rule); }
+  .help { font-size: 14px; color: var(--soft); margin: 12px 0 0; }
+  .saved { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .saved p { margin: 0; font-size: 15px; }
+  .saved p span { color: var(--soft); display: block; font-size: 13px; }
+
+  /* checks */
+  .checks { list-style: none; margin: 0; padding: 0; }
+  .checks li { display: grid; grid-template-columns: 22px 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--rule); }
+  .checks li:last-child { border-bottom: 0; padding-bottom: 0; }
+  .checks li:first-child { padding-top: 0; }
+  .mark { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--rule); display: grid; place-items: center; font-size: 13px; font-weight: 800; color: var(--slate); margin-top: 1px; }
+  .mark.pass { background: var(--pass); border-color: var(--pass); }
+  .mark.pass::after { content: "✓"; }
+  .mark.fail { background: var(--fail); border-color: var(--fail); }
+  .mark.fail::after { content: "!"; }
+  .mark.wait { border-color: var(--pending); border-top-color: transparent; animation: spin 0.9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .checks b { font-weight: 600; font-size: 15px; display: block; }
+  .checks small { font-size: 14px; color: var(--soft); }
+  .checks .fail-msg { color: var(--fail); }
+
+  /* forecast */
+  .days { list-style: none; margin: 0; padding: 0; }
+  .days li {
+    display: grid; grid-template-columns: 5.2em 1fr auto auto; gap: 12px; align-items: baseline;
+    padding: 11px 0; border-bottom: 1px solid var(--rule);
+  }
+  .days li:last-child { border-bottom: 0; }
+  .days .d { font-weight: 600; }
+  .days .c { color: var(--soft); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .days .p { color: var(--air); font-size: 14px; min-width: 3.2em; text-align: right; }
+  .days .t { font: 600 16px var(--round); min-width: 5.4em; text-align: right; }
+  .days .t span { color: var(--soft); font-weight: 400; }
+  .empty { color: var(--soft); font-size: 15px; margin: 0; }
+
+  /* log */
+  details summary { cursor: pointer; font: 600 17px var(--round); list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::after { content: "Show"; font: 400 14px var(--sans); color: var(--soft); }
+  details[open] summary::after { content: "Hide"; }
+  #log { margin: 12px 0 0; max-height: 240px; overflow: auto; font: 12px/1.5 ui-monospace, Menlo, monospace; color: var(--soft); white-space: pre-wrap; word-break: break-word; }
+
+  footer { text-align: center; font-size: 12px; color: var(--soft); opacity: 0.7; margin-top: 8px; }
+  .hidden { display: none !important; }
+
+  @media (max-width: 380px) {
+    .temp { font-size: 72px; }
+    .dial { width: 124px; height: 124px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .status.live i, .mark.wait { animation: none; }
+    .dial .needle { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand">Sandbox<small id="ver"></small></div>
+    <div class="status" id="status" role="status"><i></i><span id="status-text">Offline</span></div>
+  </div>
+
+  <!-- Hero: live temperature and wind -->
+  <div class="hero">
+    <div>
+      <p class="place" id="place">Home</p>
+      <p class="temp" id="temp">--<sup>°C</sup></p>
+      <p class="feels" id="feels">Feels like --</p>
+      <p class="stamp" id="stamp">Waiting for the first reading</p>
+    </div>
+    <div class="dial" aria-label="Wind direction and speed">
+      <svg viewBox="0 0 150 150" aria-hidden="true">
+        <circle cx="75" cy="75" r="66" fill="none" stroke="#33445a" stroke-width="2"/>
+        <g id="ticks" stroke="#4a5d75" stroke-width="2" stroke-linecap="round"></g>
+        <g font-family="-apple-system, system-ui, sans-serif" font-size="11" font-weight="600" fill="#7f91a6" text-anchor="middle" dominant-baseline="central">
+          <text x="75" y="36">N</text><text x="114" y="75">E</text><text x="75" y="114">S</text><text x="36" y="75">W</text>
+        </g>
+        <g class="needle" id="needle" opacity="0">
+          <path d="M75 24 L67 6 L83 6 Z" fill="#8fd0ec" stroke="#1b2531" stroke-width="2" stroke-linejoin="round"/>
+        </g>
+      </svg>
+      <div class="readout"><div class="spd" id="spd">--</div><div class="unit">km/h</div></div>
+      <div class="from" id="dir">Wind</div>
+    </div>
+  </div>
+
+  <dl class="readings">
+    <div><dt>Gust</dt><dd id="gust">--</dd></div>
+    <div><dt>Humidity</dt><dd id="rh">--</dd></div>
+    <div><dt>Dew point</dt><dd id="dew">--</dd></div>
+    <div><dt>UV index</dt><dd id="uv">--</dd></div>
+    <div><dt>Rain, last minute</dt><dd id="rain">--</dd></div>
+    <div><dt>Solar</dt><dd id="solar">--</dd></div>
+    <div><dt>Station pressure</dt><dd id="pres">--</dd></div>
+    <div><dt>Lightning</dt><dd id="ltg">--</dd></div>
+  </dl>
+
+  <!-- Token -->
+  <section>
+    <h2>Access</h2>
+    <div class="panel">
+      <div id="token-entry">
+        <form class="token-row" id="token-form" autocomplete="off">
+          <input type="password" id="token" aria-label="Access token" placeholder="Paste access token" autocapitalize="off" spellcheck="false">
+          <button class="btn" type="submit">Connect</button>
+        </form>
+        <p class="help">Create a personal access token at tempestwx.com in Settings, then Data Authorizations. It's kept only on this device and sent only to Tempest.</p>
+      </div>
+      <div class="saved hidden" id="token-saved">
+        <p>Token saved on this device<span>Not stored in the page or on GitHub</span></p>
+        <button class="btn ghost" type="button" id="forget">Remove</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tests -->
+  <section>
+    <h2>Connection tests</h2>
+    <div class="panel">
+      <ul class="checks">
+        <li><span class="mark" id="c-stations"></span><div><b>Find station</b><small id="m-stations">Needs a token</small></div></li>
+        <li><span class="mark" id="c-ws"></span><div><b>Live feed</b><small id="m-ws">Needs a token</small></div></li>
+        <li><span class="mark" id="c-obs"></span><div><b>First full reading</b><small id="m-obs">Arrives about once a minute</small></div></li>
+        <li><span class="mark" id="c-fc"></span><div><b>Forecast</b><small id="m-fc">Needs a token</small></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Forecast -->
+  <section>
+    <h2>Tempest forecast</h2>
+    <div class="panel">
+      <ul class="days" id="days"><li class="empty" style="border:0;display:block">Appears once the forecast test passes.</li></ul>
+    </div>
+  </section>
+
+  <!-- Log -->
+  <section>
+    <details class="panel">
+      <summary>Log</summary>
+      <pre id="log"></pre>
+    </details>
+  </section>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const VERSION = "v0.2";
+  const REST = "https://swd.weatherflow.com/swd/rest";
+  const WS_URL = "wss://ws.weatherflow.com/swd/data";
+  const KEY = "sandboxToken";
+
+  const $ = (id) => document.getElementById(id);
+  $("ver").textContent = VERSION;
+  $("foot").textContent = "Sandbox " + VERSION;
+
+  // Dial ticks every 30°
+  (() => {
+    const g = $("ticks"); let s = "";
+    for (let a = 0; a < 360; a += 30) {
+      if (a % 90 === 0) continue;
+      const r = (a - 90) * Math.PI / 180;
+      s += `<line x1="${75 + 60 * Math.cos(r)}" y1="${75 + 60 * Math.sin(r)}" x2="${75 + 66 * Math.cos(r)}" y2="${75 + 66 * Math.sin(r)}"/>`;
+    }
+    g.innerHTML = s;
+  })();
+
+  // ---------- storage (wrapped: can throw in private mode) ----------
+  const store = {
+    get() { try { return localStorage.getItem(KEY) || ""; } catch { return ""; } },
+    set(v) { try { localStorage.setItem(KEY, v); return true; } catch { return false; } },
+    del() { try { localStorage.removeItem(KEY); } catch {} }
+  };
+  let token = store.get();
+
+  // ---------- log (never prints the token) ----------
+  function mask(s) { return token ? String(s).split(token).join("•••") : String(s); }
+  function log(msg) {
+    const t = new Date().toLocaleTimeString([], { hour12: false });
+    const el = $("log");
+    el.textContent = `${t}  ${mask(msg)}\n` + el.textContent;
+    if (el.textContent.length > 20000) el.textContent = el.textContent.slice(0, 20000);
+  }
+
+  function setCheck(name, state, msg) {
+    $("c-" + name).className = "mark" + (state ? " " + state : "");
+    if (msg !== undefined) {
+      const m = $("m-" + name);
+      m.textContent = msg;
+      m.className = state === "fail" ? "fail-msg" : "";
+    }
+  }
+
+  function setStatus(kind) {
+    const s = $("status");
+    s.className = "status" + (kind === "live" ? " live" : kind === "quiet" ? " quiet" : "");
+    $("status-text").textContent = kind === "live" ? "Live" : kind === "quiet" ? "Quiet" : "Offline";
+  }
+
+  // ---------- formatting ----------
+  const kmhNum = (ms) => ms * 3.6;
+  const one = (n) => (n == null || isNaN(n)) ? "--" : Number(n).toFixed(1);
+  const DIRS = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+  const compass = (deg) => DIRS[Math.round((deg % 360) / 22.5) % 16];
+  function dewPoint(t, rh) {
+    const a = 17.625, b = 243.04, g = Math.log(rh / 100) + (a * t) / (b + t);
+    return (b * g) / (a - g);
+  }
+  function feelsLike(t, rh, windMs) {
+    const v = windMs * 3.6;
+    if (t <= 10 && v > 4.8) { // wind chill (Environment Canada)
+      return 13.12 + 0.6215 * t - 11.37 * Math.pow(v, 0.16) + 0.3965 * t * Math.pow(v, 0.16);
+    }
+    if (t >= 27 && rh >= 40) { // humidex
+      const e = 6.11 * Math.exp(5417.753 * (1 / 273.16 - 1 / (dewPoint(t, rh) + 273.15)));
+      return t + 0.5555 * (e - 10);
+    }
+    return t;
+  }
+  const clock = (d) => d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+
+  // ---------- network ----------
+  async function getJSON(path, params) {
+    const q = new URLSearchParams({ ...params, token }).toString();
+    let res;
+    try {
+      res = await fetch(`${REST}${path}?${q}`, { cache: "no-store", referrerPolicy: "no-referrer" });
+    } catch (e) {
+      throw new Error("The browser blocked this request or there's no connection. If you're online, Tempest doesn't allow calls from web pages.");
+    }
+    if (res.status === 401 || res.status === 403) throw new Error(`Tempest rejected the token (error ${res.status}). Check it and connect again.`);
+    if (!res.ok) throw new Error(`Tempest returned error ${res.status}.`);
+    return res.json();
+  }
+
+  // ---------- state ----------
+  let station = null;
+  let ws = null;
+  let retry = 0, retryTimer = null, lastMsgAt = 0, manualClose = false;
+
+  async function findStation() {
+    setCheck("stations", "wait", "Looking up your station");
+    try {
+      const data = await getJSON("/stations", {});
+      const list = data.stations || [];
+      if (!list.length) throw new Error("No stations on this account.");
+      const s = list[0];
+      const dev = (s.devices || []).find((d) => d.device_type === "ST");
+      if (!dev) throw new Error("This station has no Tempest sensor attached.");
+      station = { id: s.station_id, name: s.name || "Home", deviceId: dev.device_id };
+      $("place").textContent = station.name;
+      setCheck("stations", "pass", `Found ${station.name}` + (list.length > 1 ? `, the first of ${list.length}` : ""));
+      log(`Station ${station.id}, sensor ${station.deviceId}`);
+      return true;
+    } catch (e) {
+      setCheck("stations", "fail", e.message);
+      log("Station lookup failed: " + e.message);
+      return false;
+    }
+  }
+
+  function connectWS() {
+    if (!station) return;
+    clearTimeout(retryTimer);
+    manualClose = false;
+    setCheck("ws", "wait", "Connecting");
+    try {
+      ws = new WebSocket(`${WS_URL}?token=${encodeURIComponent(token)}`);
+    } catch (e) {
+      setCheck("ws", "fail", "Couldn't open the live feed: " + e.message);
+      return;
+    }
+    ws.onopen = () => {
+      retry = 0;
+      log("Live feed open");
+      ws.send(JSON.stringify({ type: "listen_start", device_id: station.deviceId, id: "obs" }));
+      ws.send(JSON.stringify({ type: "listen_rapid_start", device_id: station.deviceId, id: "wind" }));
+    };
+    ws.onmessage = (ev) => {
+      lastMsgAt = Date.now();
+      let m; try { m = JSON.parse(ev.data); } catch { return; }
+      setStatus("live");
+      handle(m);
+    };
+    ws.onerror = () => log("Live feed error");
+    ws.onclose = (ev) => {
+      setStatus("off");
+      log(`Live feed closed (code ${ev.code})`);
+      if (manualClose) return;
+      setCheck("ws", "fail", "Disconnected. Reconnecting automatically.");
+      const delay = Math.min(30000, 1000 * Math.pow(2, retry++));
+      retryTimer = setTimeout(connectWS, delay);
+    };
+  }
+
+  function handle(m) {
+    switch (m.type) {
+      case "connection_opened": setCheck("ws", "pass", "Connected"); break;
+      case "ack": log(`Subscribed to ${m.id === "wind" ? "rapid wind" : "observations"}`); break;
+      case "obs_st": if (m.obs && m.obs[0]) showObs(m.obs[0]); break;
+      case "rapid_wind": if (m.ob) showWind(m.ob[1], m.ob[2]); break;
+      case "evt_strike": $("ltg").textContent = `Strike ${m.evt[1]} km`; log(`Lightning ${m.evt[1]} km away`); break;
+      case "evt_precip": log("Rain started"); break;
+      default: log(`Message: ${m.type}`);
+    }
+  }
+
+  function showWind(speed, dir) {
+    const v = kmhNum(speed);
+    $("spd").textContent = v.toFixed(v < 10 ? 1 : 0);
+    $("dir").textContent = speed > 0 ? `From the ${compass(dir)}` : "Calm";
+    // Marker sits on the ring at the direction the wind comes from, pointing inward.
+    const n = $("needle");
+    n.setAttribute("opacity", speed > 0 ? "1" : "0");
+    n.style.transform = `rotate(${dir % 360}deg)`;
+  }
+
+  function showObs(o) {
+    // obs_st field order per Tempest's docs
+    const [time, , wAvg, wGust, wDir, , pres, temp, rh, , uv, solar, rain, , ltgDist, ltgCount] = o;
+    $("temp").innerHTML = `${one(temp)}<sup>°C</sup>`;
+    $("feels").textContent = `Feels like ${one(feelsLike(temp, rh, wAvg))}°`;
+    $("stamp").textContent = `Reading taken at ${clock(new Date(time * 1000))}`;
+    $("gust").textContent = `${kmhNum(wGust).toFixed(1)} km/h`;
+    $("rh").textContent = `${Math.round(rh)}%`;
+    $("dew").textContent = `${one(dewPoint(temp, rh))}°`;
+    $("uv").textContent = one(uv);
+    $("rain").textContent = `${Number(rain).toFixed(2)} mm`;
+    $("solar").textContent = `${Math.round(solar)} W/m²`;
+    $("pres").textContent = `${one(pres)} mb`;
+    $("ltg").textContent = ltgCount ? `${ltgCount}, ${ltgDist} km` : "None";
+    showWind(wAvg, wDir);
+    setCheck("obs", "pass", `Received at ${new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit", second: "2-digit" })}`);
+  }
+
+  async function loadForecast() {
+    setCheck("fc", "wait", "Loading");
+    try {
+      const data = await getJSON("/better_forecast", {
+        station_id: station.id, units_temp: "c", units_wind: "kph",
+        units_pressure: "mb", units_precip: "mm", units_distance: "km"
+      });
+      const daily = (data.forecast && data.forecast.daily) || [];
+      if (!daily.length) throw new Error("The forecast came back empty.");
+      const box = $("days");
+      box.innerHTML = "";
+      daily.slice(0, 10).forEach((d, i) => {
+        const date = new Date(d.day_start_local * 1000);
+        const li = document.createElement("li");
+        const day = document.createElement("span"); day.className = "d";
+        day.textContent = i === 0 ? "Today"
+          : `${date.toLocaleDateString([], { weekday: "short" })} ${date.getDate()}`;
+        const cond = document.createElement("span"); cond.className = "c"; cond.textContent = d.conditions || "";
+        const pop = document.createElement("span"); pop.className = "p"; pop.textContent = `${d.precip_probability ?? 0}%`;
+        const t = document.createElement("span"); t.className = "t";
+        t.textContent = `${Math.round(d.air_temp_high)}° `;
+        const lo = document.createElement("span"); lo.textContent = `${Math.round(d.air_temp_low)}°`;
+        t.append(lo);
+        li.append(day, cond, pop, t);
+        box.append(li);
+      });
+      setCheck("fc", "pass", `${daily.length} days received`);
+      log(`Forecast loaded: ${daily.length} days, ${(data.forecast.hourly || []).length} hours`);
+    } catch (e) {
+      setCheck("fc", "fail", e.message);
+      log("Forecast failed: " + e.message);
+    }
+  }
+
+  function showTokenUI() {
+    $("token-entry").classList.toggle("hidden", !!token);
+    $("token-saved").classList.toggle("hidden", !token);
+  }
+
+  async function start() {
+    showTokenUI();
+    if (!token) {
+      ["stations", "ws", "fc"].forEach((c) => setCheck(c, "", "Needs a token"));
+      setCheck("obs", "", "Arrives about once a minute");
+      return;
+    }
+    if (await findStation()) {
+      connectWS();
+      loadForecast();
+    } else {
+      setCheck("ws", "", "Skipped until the station is found");
+      setCheck("fc", "", "Skipped until the station is found");
+    }
+  }
+
+  function stop() {
+    manualClose = true;
+    clearTimeout(retryTimer);
+    if (ws) { try { ws.close(); } catch {} ws = null; }
+  }
+
+  $("token-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const v = $("token").value.trim();
+    if (!v) { $("token").focus(); return; }
+    stop();
+    token = v;
+    $("token").value = "";
+    if (!store.set(v)) log("Couldn't save the token on this device (private browsing?). Using it for this visit only.");
+    else log("Token saved on this device");
+    start();
+  });
+
+  $("forget").onclick = () => {
+    stop();
+    store.del();
+    token = ""; station = null;
+    setStatus("off");
+    log("Token removed from this device");
+    start();
+  };
+
+  // iOS suspends sockets in the background; reconnect when back in view.
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible" || !station || !token) return;
+    if (!ws || ws.readyState > 1 || Date.now() - lastMsgAt > 20000) {
+      log("Back in view, reconnecting");
+      stop();
+      connectWS();
+    }
+  });
+
+  // Flag a feed that has gone quiet.
+  setInterval(() => {
+    if (ws && ws.readyState === 1 && lastMsgAt && Date.now() - lastMsgAt > 30000) setStatus("quiet");
+  }, 5000);
+
+  setStatus("off");
+  start();
+})();
+</script>
+</body>
+</html>
