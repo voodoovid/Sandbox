@@ -260,6 +260,126 @@
   @media (prefers-reduced-motion: reduce) {
     .status.live i, .mark.wait { animation: none; }
   }
+
+  /* ---------- manual (header book button, Settings > Manual) ---------- */
+  .mbtn { position: relative; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; border: 1px solid rgba(255,207,122,0.5); background: rgba(255,207,122,0.09); color: var(--warm); font-size: 20px; padding: 0; }
+  .mbtn:hover { background: rgba(255,207,122,0.18); }
+  @media (max-width: 560px) { .mbtn { display: none; } }
+
+  #dlgManual {
+    --mt: calc(max(env(safe-area-inset-top), 24px) + 14px);
+    --mb: calc(env(safe-area-inset-bottom) + 14px);
+    width: min(840px, calc(100% - 20px));
+    height: calc(100vh - var(--mt) - var(--mb)); height: calc(100dvh - var(--mt) - var(--mb));
+    max-height: none; margin: var(--mt) auto var(--mb);
+  }
+  .mhead { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px 12px; }
+  .mhead .ey { display: block; margin-bottom: 6px; font: 650 11.5px/1 var(--sans); letter-spacing: 0.14em; text-transform: uppercase; color: var(--soft); }
+  .mhead h2 { margin: 0; font: 700 28px/1 var(--round); letter-spacing: 0.01em; }
+  .mnav { flex: none; display: flex; gap: 6px; padding: 0 20px 12px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--line); }
+  .mnav::-webkit-scrollbar { display: none; }
+  .mnav button { flex: none; height: 32px; padding: 0 14px; border: 1px solid var(--line); border-radius: 16px; background: none; color: var(--soft); font: 650 12.5px/1 var(--sans); letter-spacing: 0.09em; text-transform: uppercase; }
+  .mnav button:hover { border-color: var(--soft); }
+  .mnav button[aria-current="true"] { background: var(--air); border-color: var(--air); color: #0b2231; }
+  .mbody { font-variant-numeric: normal; outline: none; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 8px 22px 36px; -webkit-overflow-scrolling: touch; }
+  #dlgManual p:not(.temp) { margin: 10px 0 0; font-size: 15.5px; line-height: 1.6; }
+  #dlgManual p.intro { margin-top: 16px; font-size: 17px; line-height: 1.55; }
+  .msec { margin-top: 36px; padding-top: 30px; border-top: 1px solid var(--line); }
+  .msec.first { margin-top: 10px; padding-top: 0; border-top: 0; }
+  .mh { display: flex; align-items: baseline; gap: 12px; margin: 0; font: 700 26px/1.1 var(--round); }
+  .mh .no { font: 650 14px/1 var(--sans); letter-spacing: 0.14em; color: var(--warm); font-variant-numeric: tabular-nums; }
+  #dlgManual h4 { margin: 26px 0 0; font: 650 12.5px/1.2 var(--sans); letter-spacing: 0.12em; text-transform: uppercase; color: var(--air); }
+  #dlgManual h4 + p { margin-top: 8px; }
+  .xref { padding: 0; border: 0; background: none; color: var(--air); font: inherit; font-weight: 600; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; text-align: inherit; }
+  .xref:hover { text-decoration-thickness: 2px; }
+
+  .glance { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+  .glance div { padding: 14px 8px 12px; text-align: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+  .glance b { display: block; margin-bottom: 4px; font: 300 38px/1 var(--round); color: var(--warm); }
+  .glance span { font: 650 11.5px/1.25 var(--sans); letter-spacing: 0.1em; text-transform: uppercase; color: var(--soft); }
+  .msteps { margin: 18px 0 0; padding: 0; list-style: none; counter-reset: s; display: flex; flex-direction: column; gap: 14px; }
+  .msteps li { counter-increment: s; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; align-items: start; font-size: 15.5px; line-height: 1.55; }
+  .msteps li::before { content: counter(s); display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--warm); color: #1a1405; font: 800 15px/1 var(--round); }
+  .mnote { margin: 18px 0 0; padding: 12px 14px; border-left: 3px solid var(--warm); border-radius: 0 12px 12px 0; background: rgba(255,255,255,0.04); font-size: 14.5px; line-height: 1.55; }
+  .mnote.tip { border-left-color: var(--pass); }
+  .mnote .lb { margin-right: 8px; font: 800 11.5px/1 var(--sans); letter-spacing: 0.14em; text-transform: uppercase; color: var(--warm); }
+  .mnote.tip .lb { color: var(--pass); }
+
+  /* numbered yellow markers: on the pictures and in the definition lists */
+  .bd { display: inline-grid; place-items: center; flex: none; width: 21px; height: 21px; border-radius: 50%; background: var(--warm); color: #1a1405; font: 800 12px/1 var(--round); font-style: normal; font-variant-numeric: tabular-nums; letter-spacing: 0; text-transform: none; box-shadow: 0 0 0 2px #0b1522; vertical-align: middle; }
+  .bd.abs { position: absolute; transform: translate(-50%, -50%); z-index: 2; }
+  .tile .lab .bd { margin-right: 0; }
+  .lab .bd, .wind-stats dt .bd, .eyebrow .bd, .chip .bd { margin-right: 7px; }
+  .tile .lab .bd { margin-right: 0; }
+  .cond-line .bd { margin-left: 2px; }
+  .temp .bd { margin-right: 10px; vertical-align: 0.5em; }
+  .spark-cap .bd { margin: 0 6px; }
+  .defs { margin: 20px 0 0; padding: 0; list-style: none; }
+  .defs li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 0 14px; padding: 13px 0; border-top: 1px solid var(--line); font-size: 15.5px; line-height: 1.55; align-items: start; }
+  .defs li:first-child { padding-top: 0; border-top: 0; }
+  .defs li > .bd { width: 28px; height: 28px; font-size: 14.5px; box-shadow: none; margin-top: 0; }
+  .defs li b { font: 650 16.5px/1.3 var(--round); }
+  #dlgManual .defs li p { margin: 3px 0 0; font-size: 15px; line-height: 1.55; color: var(--soft); }
+  #dlgManual .defs li p em { font-style: normal; color: var(--ink); }
+  .defs .fc { margin-left: 8px; padding: 2px 7px; border-radius: 999px; border: 1px solid rgba(127,212,245,0.35); color: var(--air); font: 650 10.5px/1.4 var(--sans); letter-spacing: 0.1em; text-transform: uppercase; vertical-align: 2px; white-space: nowrap; }
+
+  .mfig { margin: 18px 0 0; padding: 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 18px; }
+  .mfig figcaption { margin-top: 12px; text-align: center; font: 500 13px/1.5 var(--sans); color: var(--dim); }
+  .mfig svg.msvg { display: block; width: 100%; height: auto; }
+  .mspec { max-width: 620px; margin: 0 auto; font-variant-numeric: tabular-nums; }
+  @media (min-width: 561px) { .mspec .side-item .lab { white-space: nowrap; } }
+  @media (max-width: 560px) {
+    .mspec .temp { font-size: 60px; white-space: nowrap; }
+    .mspec .cond-line { font-size: 15px; }
+    .mspec .tile .lab span[data-i] { display: none !important; }
+    .mspec .tile .lab { gap: 6px; }
+    .mspec .wind-stats { gap: 6px; }
+    .mspec .wind-stats div { padding: 8px; }
+    .mspec .wind-stats dt { display: block; font-size: 10.5px; letter-spacing: 0.05em; }
+    .mspec .wind-stats dt .bd { display: grid; margin: 0 0 5px; }
+    .mspec .wind-stats dd { font-size: 18px; }
+  }
+  .mspec.wide { max-width: none; }
+  .mspec .card { backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .mdial { position: relative; width: min(100%, 360px); aspect-ratio: 1; margin: 8px auto 6px; container-type: size; }
+  .mdial svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .mdial .spd { font-size: 64px; font-size: 21cqmin; }
+  .mspec .wind-stats { margin-top: 8px; }
+  .mspec .spark { height: 56px; }
+  .msvg .fr { fill: rgba(255,255,255,0.04); stroke: rgba(255,255,255,0.16); }
+  .msvg .ln { fill: none; stroke: rgba(255,255,255,0.14); }
+  .msvg .tx { fill: #9fb2c7; font: 600 13px var(--sans); }
+  .msvg .tb { fill: #f3f7fb; font: 650 14px var(--round); }
+  .msvg .ts { fill: #70869c; font: 500 11.5px var(--sans); }
+  .msvg .bg { fill: #ffcf7a; }
+  .msvg .bn { fill: #1a1405; font: 800 13px var(--round); text-anchor: middle; dominant-baseline: central; }
+
+  .scale { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 3px; margin-top: 14px; }
+  .scale span { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 3px; min-height: 54px; padding: 8px 4px; text-align: center; border-radius: 9px; font: 700 13px/1.15 var(--sans); color: #08111c; }
+  .scale span i { font: 600 11.5px/1.1 var(--sans); font-style: normal; opacity: 0.78; }
+  @media (max-width: 560px) {
+    .scale { grid-auto-flow: row; }
+    .scale span { flex-direction: row; justify-content: space-between; min-height: 0; padding: 9px 14px; text-align: left; }
+  }
+  .rd2 { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px 16px; align-items: center; margin-top: 14px; font-size: 15px; line-height: 1.5; }
+  .rd2 .status, .rd2 .mode { pointer-events: none; justify-self: start; }
+  .rd2 .mode { font-size: 14px; }
+  .mtests { margin-top: 14px; }
+  .mtests .checks li { padding: 11px 0; }
+
+  .qa { margin-top: 10px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+  .qa summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; list-style: none; cursor: pointer; font: 650 16px/1.3 var(--round); }
+  .qa summary::-webkit-details-marker { display: none; }
+  .qa summary::after { content: ""; flex: none; width: 8px; height: 8px; border-right: 2px solid var(--soft); border-bottom: 2px solid var(--soft); transform: rotate(45deg) translateY(-2px); transition: transform .15s; }
+  .qa[open] summary::after { transform: rotate(-135deg) translateY(-2px); }
+  #dlgManual .qa p { margin: 0; padding: 0 16px 15px; font-size: 15px; color: var(--soft); }
+  .mfoot { margin-top: 34px; padding-top: 16px; border-top: 1px solid var(--line); text-align: center; color: var(--dim); font-size: 13px; line-height: 1.5; }
+  @media (max-width: 420px) {
+    .mhead, .mnav { padding-left: 16px; padding-right: 16px; }
+    .mbody { padding-left: 16px; padding-right: 16px; }
+    .mh { font-size: 23px; }
+    .mfig { padding: 12px; }
+  }
 </style>
 </head>
 <body>
@@ -273,6 +393,7 @@
     <div class="actions">
       <button class="mode" id="mode" type="button" aria-pressed="false" title="Show only what the unit measures: no forecast"><i></i><span>Unit only</span></button>
       <div class="status" id="status" role="status"><i></i><span id="status-text">Offline</span></div>
+      <button class="mbtn" id="manualBtn" type="button" aria-label="Open the Manual" title="Manual"><span data-icon="book" style="display:grid"></span></button>
       <button class="gear" id="gear" type="button" aria-label="Settings"><span data-icon="gear" style="display:grid"></span><span class="dot"></span></button>
     </div>
   </header>
@@ -320,7 +441,6 @@
           <circle cx="150" cy="150" r="92" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="6"/>
           <circle id="arc" cx="150" cy="150" r="92" fill="none" stroke="url(#arcg)" stroke-width="6" stroke-linecap="round" transform="rotate(-90 150 150)" stroke-dasharray="0 600" stroke-opacity="0"/>
           <line id="gtick" x1="0" y1="0" x2="0" y2="0" stroke="#ffcf7a" stroke-width="3.5" stroke-linecap="round" opacity="0"/>
-          <text id="gtag" x="0" y="0" text-anchor="middle" dominant-baseline="central" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" letter-spacing="0.8" fill="#ffcf7a" opacity="0">GUST</text>
           <circle id="ripple" class="ripple" cx="150" cy="150" r="70" fill="none" stroke="#7fd4f5" stroke-width="2"/>
           <g id="needle" opacity="0">
             <g stroke="#7fd4f5" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="16 8" fill="none">
@@ -378,6 +498,14 @@
   <div class="sheet-body">
 
     <section class="set">
+      <h3>Manual</h3>
+      <div class="panel"><div class="saved">
+        <p>User's guide<span>Every reading explained in plain English</span></p>
+        <button class="btn ghost" type="button" id="openManual2">Open</button>
+      </div></div>
+    </section>
+
+    <section class="set">
       <h3>Access</h3>
       <div class="panel">
         <div id="token-entry">
@@ -415,10 +543,244 @@
   </div>
 </dialog>
 
+<!-- Manual -->
+<dialog id="dlgManual" aria-labelledby="hManual">
+  <header class="mhead">
+    <div><span class="ey" id="mVer">Sandbox</span><h2 id="hManual">Manual</h2></div>
+    <button class="btn small" type="button" id="mClose">Close</button>
+  </header>
+  <nav class="mnav" id="mNav" aria-label="Manual sections">
+    <button type="button" data-go="m-start">Start</button>
+    <button type="button" data-go="m-screen">Screen</button>
+    <button type="button" data-go="m-now">Now</button>
+    <button type="button" data-go="m-wind">Wind</button>
+    <button type="button" data-go="m-cond">Conditions</button>
+    <button type="button" data-go="m-set">Settings</button>
+    <button type="button" data-go="m-help">Help</button>
+  </nav>
+  <div class="mbody" id="mBody" tabindex="-1">
+
+    <p class="intro">Sandbox shows what your Tempest weather station is measuring right now, with a short forecast beside it. This manual explains every number on the screen in plain English. Each yellow numbered marker on a picture matches the definition with the same number just below it.</p>
+
+    <section class="msec first" id="m-start">
+      <h3 class="mh"><span class="no">01</span>Quick start</h3>
+      <div class="glance">
+        <div><b>3 s</b><span>Wind updates</span></div>
+        <div><b>1 min</b><span>Full reading</span></div>
+        <div><b>5 min</b><span>Forecast refresh</span></div>
+      </div>
+      <ol class="msteps">
+        <li><span><b>Open Settings.</b> Tap the gear in the top corner.</span></li>
+        <li><span><b>Paste your access token</b> and tap <b>Connect</b>. You make the token at tempestwx.com, under Settings, then Data Authorizations. It stays on this device.</span></li>
+        <li><span><b>Watch the four tests.</b> Each one turns to a green tick when it works. <button type="button" class="xref" data-go="m-set">What the tests mean</button></span></li>
+        <li><span><b>Read the screen.</b> When the pill at the top says <b>Live</b>, readings are arriving.</span></li>
+      </ol>
+      <div class="mnote tip"><span class="lb">Tip</span>No station handy? Add <b>#demo</b> to the end of the web address to try the app with invented readings. No token or connection is needed.</div>
+    </section>
+
+    <section class="msec" id="m-screen">
+      <h3 class="mh"><span class="no">02</span>The screen</h3>
+      <p>Three cards sit under a bar of controls. On a narrow screen the cards stack one under another instead of side by side.</p>
+      <figure class="mfig" role="img" aria-label="Map of the screen: a top bar with five items, and three cards: Now, Wind and Conditions.">
+        <div id="fig-screen"></div>
+        <figcaption>The whole screen. The numbers match the list below.</figcaption>
+      </figure>
+      <ol class="defs">
+        <li><i class="bd">1</i><div><b>Name and version</b><p>"Sandbox" and the build number, so you always know which version you are looking at.</p></div></li>
+        <li><i class="bd">2</i><div><b>Unit only</b><p>A switch. On: the forecast is turned off and you see only what the sensor itself measures. <button type="button" class="xref" data-go="m-set">More</button></p></div></li>
+        <li><i class="bd">3</i><div><b>Status pill</b><p>Shows how fresh the data is: Live, Quiet, Offline or Demo. <button type="button" class="xref" data-go="m-set">More</button></p></div></li>
+        <li><i class="bd">4</i><div><b>Manual</b><p>The book button opens this guide. On a phone, open it from Settings.</p></div></li>
+        <li><i class="bd">5</i><div><b>Settings</b><p>Your token, the connection tests and a log. A red dot on the gear means a test failed.</p></div></li>
+        <li><i class="bd">6</i><div><b>Now card</b><p>Temperature, what it feels like, rain and the sun times. <button type="button" class="xref" data-go="m-now">More</button></p></div></li>
+        <li><i class="bd">7</i><div><b>Wind card</b><p>The dial, the gust and lull, and the last five minutes. <button type="button" class="xref" data-go="m-wind">More</button></p></div></li>
+        <li><i class="bd">8</i><div><b>Conditions card</b><p>Twelve tiles: humidity, pressure, sun, lightning and the sensor itself. <button type="button" class="xref" data-go="m-cond">More</button></p></div></li>
+      </ol>
+    </section>
+
+    <section class="msec" id="m-now">
+      <h3 class="mh"><span class="no">03</span>The Now card</h3>
+      <p>The top-left card: the air around your sensor and how wet it is.</p>
+      <figure class="mfig">
+        <div class="mspec" aria-hidden="true" id="fig-now"></div>
+        <figcaption>The whole Now card, with example readings.</figcaption>
+      </figure>
+      <ol class="defs">
+        <li><i class="bd">1</i><div><b>Place</b><p>The name of your station, taken from your Tempest account.</p></div></li>
+        <li><i class="bd">2</i><div><b>Temperature</b><p>The air temperature at the sensor, in °C. It updates with each full reading, about once a minute.</p></div></li>
+        <li><i class="bd">3</i><div><b>Sky summary</b><span class="fc">Forecast</span><p>A few words and an icon for the sky, for example Partly Cloudy.</p></div></li>
+        <li><i class="bd">4</i><div><b>Feels like</b><p>What the air feels like on your skin, worked out from the sensor's own temperature, humidity and wind. The line underneath says which rule was used (table below).</p></div></li>
+        <li><i class="bd">5</i><div><b>Rain today</b><span class="fc">Forecast</span><p>Rain so far today in millimetres. 1 mm is one litre of water on every square metre of ground. Underneath: <em>Raining now</em> or <em>Dry now</em>.</p></div></li>
+        <li><i class="bd">6</i><div><b>Rain, last minute</b><p>Rain from the most recent minute, with a word for how hard it is falling (scale below). It reads 0.00 and "No rain" when it is dry.</p></div></li>
+        <li><i class="bd">7</i><div><b>High / Low</b><span class="fc">Forecast</span><p>Today's highest and lowest forecast air temperature.</p></div></li>
+        <li><i class="bd">8</i><div><b>Rain time today</b><span class="fc">Forecast</span><p>How many minutes it has rained so far today. Yesterday's minutes are underneath.</p></div></li>
+        <li><i class="bd">9</i><div><b>Sunrise</b><span class="fc">Forecast</span><p>Sunrise time today, with sunset underneath.</p></div></li>
+        <li><i class="bd">10</i><div><b>Reading taken at</b><p>The time of the latest full reading from the sensor. If it stops moving, check the <button type="button" class="xref" data-go="m-set">status pill</button>.</p></div></li>
+      </ol>
+      <div class="mnote"><span class="lb">Note</span>Items tagged <span class="fc" style="margin:0 2px;padding:2px 7px;border-radius:999px;border:1px solid rgba(127,212,245,0.35);color:var(--air);font:650 10.5px/1.4 var(--sans);letter-spacing:.1em;text-transform:uppercase">Forecast</span> come from Tempest's forecast service. They disappear when <b>Unit only</b> is on.</div>
+
+      <h4>Which "Feels like" is used</h4>
+      <div class="rd2">
+        <b>Wind chill</b><span>Air is 10 °C or colder and the wind is above 4.8 km/h. Uses the Environment Canada formula and the last minute's average wind.</span>
+        <b>Humidex</b><span>Air is 27 °C or warmer and humidity is 40% or more. Adds the effect of humid heat.</span>
+        <b>Same as air temp</b><span>Everything in between. No adjustment is needed.</span>
+      </div>
+
+      <h4>Rain words</h4>
+      <p>The app turns the last minute's rain into a pace in millimetres per hour, then picks the word using Tempest's own categories.</p>
+      <div class="scale" aria-label="Rain words by millimetres per hour">
+        <span style="background:#9fd8f2">Very light<i>under 0.25</i></span>
+        <span style="background:#7fc4ee">Light<i>0.25 to 1</i></span>
+        <span style="background:#5fb0e8">Moderate<i>1 to 4</i></span>
+        <span style="background:#4a92dc">Heavy<i>4 to 16</i></span>
+        <span style="background:#6a7ad0">Very heavy<i>16 to 50</i></span>
+        <span style="background:#8a62c4">Extreme<i>50 and up</i></span>
+      </div>
+      <p style="font-size:13px;color:var(--dim);margin-top:8px">Millimetres of rain per hour. Hail is never shown, because Tempest marks its hail detection as experimental.</p>
+    </section>
+
+    <section class="msec" id="m-wind">
+      <h3 class="mh"><span class="no">04</span>The Wind card</h3>
+      <p>The card on the right. The big dial is live: it moves about every 3 seconds.</p>
+      <figure class="mfig">
+        <div class="mspec" aria-hidden="true" id="fig-wind"></div>
+        <figcaption>The whole Wind card, with example readings: wind from the north-west at 14 km/h.</figcaption>
+      </figure>
+      <ol class="defs">
+        <li><i class="bd">1</i><div><b>Wind direction</b><p>Where the wind is coming <em>from</em>, in words. "From the NW" means it blows out of the north-west toward the south-east. It says <em>Calm</em> when the wind is under 0.3 km/h.</p></div></li>
+        <li><i class="bd">2</i><div><b>Compass ring</b><p>N, E, S and W, with a tick every 10°. North is at the top.</p></div></li>
+        <li><i class="bd">3</i><div><b>Wind arrow</b><p>The dot sits on the side the wind comes from, and the arrow points the way it is blowing. The dashed streaks flow the same way, faster in stronger wind. The arrow sways a little when the wind is gusty, and fades when it is calm.</p></div></li>
+        <li><i class="bd">4</i><div><b>Wind speed</b><p>The big number: the wind right now, in km/h. It is smoothed so it glides instead of jumping. If the live stream pauses, it shows the station's one-minute average until the stream returns.</p></div></li>
+        <li><i class="bd">5</i><div><b>Speed ring</b><p>The blue ring fills as the wind rises: about three-tenths of the way round at 10 km/h, six-tenths at 30 km/h, and all the way round at 60 km/h or more. Light winds get extra room so they are easy to see.</p></div></li>
+        <li><i class="bd">6</i><div><b>Gust marker</b><p>The gold tick on the ring marks the gust, the strongest puff of the last minute. It shows only when the gust is at least 0.5 km/h above the current speed, so in steady wind it stays hidden.</p></div></li>
+        <li><i class="bd">7</i><div><b>Bearing</b><p>The same direction as a number of degrees: 0° is north, 90° east, 180° south and 270° west.</p></div></li>
+        <li><i class="bd">8</i><div><b>Gust</b><p>The strongest puff in the last minute, in km/h. A puff is the highest of the sensor's 3-second readings. Updates once a minute.</p></div></li>
+        <li><i class="bd">9</i><div><b>Lull</b><p>The calmest moment in the last minute, in km/h. Updates once a minute.</p></div></li>
+        <li><i class="bd">10</i><div><b>5 min high</b><p>The highest live reading in the last five minutes. Updates live.</p></div></li>
+        <li><i class="bd">11</i><div><b>Five-minute graph</b><p>A line of live wind speed. The left edge is five minutes ago and the right edge is now. A higher line means a windier moment.</p></div></li>
+      </ol>
+
+      <h4>Gust, lull and average</h4>
+      <p>The sensor checks the wind every 3 seconds, which is 20 checks a minute. Tempest then reports three summary numbers for that minute.</p>
+      <figure class="mfig" role="img" aria-label="One minute of wind readings with the gust, average and lull marked.">
+        <div id="fig-gl"></div>
+        <figcaption>One minute of wind: twenty readings, three summaries.</figcaption>
+      </figure>
+      <ol class="defs">
+        <li><i class="bd">A</i><div><b>Gust</b><p>The highest reading. The strongest puff.</p></div></li>
+        <li><i class="bd">B</i><div><b>Average</b><p>All twenty readings added up and divided by twenty. The steady wind in between.</p></div></li>
+        <li><i class="bd">C</i><div><b>Lull</b><p>The lowest reading. The calmest moment.</p></div></li>
+      </ol>
+      <div class="mnote"><span class="lb">Note</span>Gust and Lull arrive once a minute with the full reading, so a puff you watch on the dial can take up to a minute to appear in the Gust figure. The dial, the big number and the 5 min high update live.</div>
+
+      <h4>Reading the direction</h4>
+      <p>Wind is named for where it comes from. A north wind blows toward the south. The dial points the dot at the side the wind arrives from.</p>
+      <figure class="mfig" role="img" aria-label="Compass with eight directions and their degrees, and an example arrow for a wind from the north-west.">
+        <div id="fig-rose"></div>
+        <figcaption>The eight compass points and their degrees. The example arrow is a north-west wind (315°).</figcaption>
+      </figure>
+    </section>
+
+    <section class="msec" id="m-cond">
+      <h3 class="mh"><span class="no">05</span>The Conditions card</h3>
+      <p>Twelve tiles under the Now card. Each shows a main number with a small line of extra detail beneath it.</p>
+      <figure class="mfig">
+        <div class="mspec wide" aria-hidden="true" id="fig-cond"></div>
+        <figcaption>The whole Conditions card, with example readings.</figcaption>
+      </figure>
+      <ol class="defs">
+        <li><i class="bd">1</i><div><b>Humidity</b><p>How much water vapour the air holds, as a percentage of the most it could hold at this temperature. 100% means saturated: fog, dew or rain. The small line is the dew point.</p></div></li>
+        <li><i class="bd">2</i><div><b>Pressure</b><p>The weight of the air above you, in millibars (mb, the same as hPa). About 1013 mb is average at sea level. The arrow shows the trend: ↗ rising usually means settling weather, ↘ falling usually means change on the way. "stn" is the raw reading at the sensor.</p></div></li>
+        <li><i class="bd">3</i><div><b>UV index</b><p>How strong the sun's burning rays are. 0 at night. The word underneath is the level (scale below).</p></div></li>
+        <li><i class="bd">4</i><div><b>Solar</b><p>How much sunlight energy is landing on the sensor, in watts per square metre (W/m²). Roughly 1,000 W/m² is full summer sun. Underneath is brightness in lux (klux means thousands of lux).</p></div></li>
+        <li><i class="bd">5</i><div><b>Dew point</b><p>The temperature the air must cool to before dew or fog forms. A higher number means stickier air. The word underneath is the comfort level (scale below).</p></div></li>
+        <li><i class="bd">6</i><div><b>Wet bulb</b><p>The lowest temperature evaporating water could cool the air to. It is never higher than the air temperature. Underneath is <em>Delta-T</em>, the air temperature minus the wet bulb. A big gap means dry air, where water and sweat evaporate fast. A gap near zero means damp air (picture below).</p></div></li>
+        <li><i class="bd">7</i><div><b>Air density</b><p>How heavy the air is, in kilograms per cubic metre. About 1.2 is normal near sea level. Hot or humid air is a little thinner, so the number drops. Thinner air means less drag on anything moving through it. Underneath is the raw station pressure used in the sum.</p></div></li>
+        <li><i class="bd">8</i><div><b>Rain yesterday</b><span class="fc">Forecast</span><p>Yesterday's total rain in millimetres, with the minutes it rained underneath.</p></div></li>
+        <li><i class="bd">9</i><div><b>Lightning</b><p>Strikes detected in the last minute, and how far away they were on average. <em>None</em> means a quiet minute. A fresh strike shows <em>Detected</em> and its distance straight away, until the next minute's reading.</p></div></li>
+        <li><i class="bd">10</i><div><b>Lightning 1 hr</b><span class="fc">Forecast</span><p>Strikes in the last hour. Underneath: the count for the last 3 hours and how long ago the latest strike was.</p></div></li>
+        <li><i class="bd">11</i><div><b>Sensor battery</b><p>The sensor's battery voltage. The line underneath shows whether it is rising, falling or steady over up to 30 minutes. It says <em>Measuring</em> for the first 10 minutes. A rising voltage in daylight hints that the solar panel is charging it.</p></div></li>
+        <li><i class="bd">12</i><div><b>Sensor info</b><p>The sensor's firmware version (its built-in software), its radio signal strength in dBm, and <em>Up</em>, the time since it last restarted. For signal, closer to zero is stronger: −55 is better than −85.</p></div></li>
+      </ol>
+
+      <h4>UV index words</h4>
+      <div class="scale" aria-label="UV index words">
+        <span style="background:#5fd3a0">Low<i>under 3</i></span>
+        <span style="background:#f2d24e">Moderate<i>3 to 6</i></span>
+        <span style="background:#f59a4a">High<i>6 to 8</i></span>
+        <span style="background:#f07a6a">Very high<i>8 to 11</i></span>
+        <span style="background:#b48cf2">Extreme<i>11 and up</i></span>
+      </div>
+
+      <h4>Dew point words</h4>
+      <div class="scale" aria-label="Dew point comfort words in degrees Celsius">
+        <span style="background:#9fd8f2">Dry<i>under 5°</i></span>
+        <span style="background:#7fe0b8">Comfortable<i>5 to 10°</i></span>
+        <span style="background:#d8e07a">Slightly humid<i>10 to 16°</i></span>
+        <span style="background:#f5b04a">Humid<i>16 to 21°</i></span>
+        <span style="background:#f07a6a">Muggy<i>21° and up</i></span>
+      </div>
+
+      <h4>Wet bulb and Delta-T</h4>
+      <figure class="mfig" role="img" aria-label="Two bars: air temperature and wet bulb. The gap between their ends is Delta-T.">
+        <div id="fig-wb"></div>
+        <figcaption>Delta-T is the gap between the two bars. Dry air makes the gap wider.</figcaption>
+      </figure>
+      <div class="mnote"><span class="lb">Note</span>Dew point, wet bulb, Delta-T and air density use Tempest's own figures when the forecast is on. When <b>Unit only</b> is on, the app works them out from the sensor's temperature, humidity and pressure.</div>
+    </section>
+
+    <section class="msec" id="m-set">
+      <h3 class="mh"><span class="no">06</span>Controls and settings</h3>
+
+      <h4>Unit only</h4>
+      <div class="rd2">
+        <span class="mode" aria-pressed="false"><i></i><span>Unit only</span></span><span><b>Off.</b> Sensor readings and the forecast are both shown.</span>
+        <span class="mode" aria-pressed="true"><i></i><span>Unit only</span></span><span><b>On.</b> Only what the sensor itself measures. The forecast is not requested at all.</span>
+      </div>
+      <p>With Unit only on, these items disappear: the sky summary, Rain today, High / Low, Rain time today, Sunrise, Rain yesterday and Lightning 1 hr. Pressure shows the sensor's raw reading instead of the sea-level figure. Your choice is remembered on this device.</p>
+
+      <h4>Status pill</h4>
+      <div class="rd2">
+        <span class="status live"><i></i><span>Live</span></span><span>Connected, and data arrived in the last 30 seconds.</span>
+        <span class="status quiet"><i></i><span>Quiet</span></span><span>Connected, but nothing has arrived for over 30 seconds. The app keeps listening.</span>
+        <span class="status"><i></i><span>Offline</span></span><span>Not connected. The app retries on its own, and reconnects when you return to it.</span>
+        <span class="status demo"><i></i><span>Demo</span></span><span>Invented readings, from the <b>#demo</b> address. No connection is made.</span>
+      </div>
+
+      <h4>Settings sheet</h4>
+      <ol class="defs">
+        <li><i class="bd">1</i><div><b>Access</b><p>Paste your Tempest token and tap Connect. It is saved only on this device, sent only to Tempest, and never stored in the page or on GitHub. <em>Remove</em> deletes it.</p></div></li>
+        <li><i class="bd">2</i><div><b>Connection tests</b><p>Four checks that prove each link works. <em>Run again</em> repeats them. The marks are explained below.</p></div></li>
+        <li><i class="bd">3</i><div><b>Log</b><p>A running diary of what the app is doing, newest first. It never prints your token.</p></div></li>
+      </ol>
+      <div class="mtests"><ul class="checks" aria-hidden="true">
+        <li><span class="mark pass"></span><div><b>Find station</b><small>Found your station, the first one on the account.</small></div></li>
+        <li><span class="mark pass"></span><div><b>Live feed</b><small>The real-time link is open.</small></div></li>
+        <li><span class="mark wait"></span><div><b>First full reading</b><small>Spinning ring: still waiting. A full reading arrives about once a minute.</small></div></li>
+        <li><span class="mark fail"></span><div><b>Forecast</b><small class="fail-msg">Red mark: this test failed, and the message says why. A red dot also shows on the gear.</small></div></li>
+      </ul></div>
+    </section>
+
+    <section class="msec" id="m-help">
+      <h3 class="mh"><span class="no">07</span>Help</h3>
+      <details class="qa"><summary>The big wind number and Gust don't match.</summary><p>That is normal. The big number is the wind right now. Gust is the strongest puff of the last minute, so it is usually higher. Both are right.</p></details>
+      <details class="qa"><summary>There is no gold marker on the ring.</summary><p>It appears only when the gust is at least 0.5 km/h above the current speed. In steady wind it stays hidden. It also needs the first full reading, which takes up to a minute after connecting.</p></details>
+      <details class="qa"><summary>Why do Gust and Lull change only once a minute?</summary><p>They are summaries that Tempest sends with each full reading. The dial, the big number and the 5 min high update live.</p></details>
+      <details class="qa"><summary>Some tiles have disappeared.</summary><p>Unit only is on. It hides everything that comes from the forecast. Turn it off at the top to bring them back.</p></details>
+      <details class="qa"><summary>Rain today shows dashes.</summary><p>That total comes from the forecast service, so it shows dashes while it loads. It is hidden in Unit only.</p></details>
+      <details class="qa"><summary>Pressure differs from other weather apps.</summary><p>Most apps quote sea-level pressure, which is adjusted for height. Sandbox shows that too when the forecast is on, with the sensor's raw reading as "stn". In Unit only it shows the raw reading, which is a little lower.</p></details>
+      <details class="qa"><summary>Is my token safe?</summary><p>It lives only in this browser on this device and is sent only to Tempest. It is never in the page or on GitHub, and the log hides it. Tap Remove in Settings to delete it.</p></details>
+      <details class="qa"><summary>The status says Quiet or Offline.</summary><p>Quiet means connected with nothing new for over 30 seconds. Offline means the connection dropped. The app retries by itself, waiting a little longer each time up to 30 seconds, and reconnects when you come back to it. If it stays that way, open Settings and tap Run again.</p></details>
+      <details class="qa"><summary>How do I try it without a station?</summary><p>Add #demo to the end of the web address. You will see invented readings and no connection is made.</p></details>
+      <div class="mfoot" id="mFoot"></div>
+    </section>
+
+  </div>
+</dialog>
+
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.78";
+  const VERSION = "v0.79";
   const REST = "https://swd.weatherflow.com/swd/rest";
   const WS_URL = "wss://ws.weatherflow.com/swd/data";
   const KEY = "sandboxToken";
@@ -450,7 +812,8 @@
     fog: '<path d="M16 16H6.5a4.5 4.5 0 1 1 .9-8.9A6 6 0 0 1 18.5 9 3.5 3.5 0 0 1 16 16z"/><path d="M4 20h16M7 23h10"/>',
     sunrise: '<path d="M17 18a5 5 0 0 0-10 0M12 2v7M4.22 10.22l1.42 1.42M1 18h2M21 18h2M18.36 11.64l1.42-1.42M23 22H1M8 6l4-4 4 4"/>',
     sunset: '<path d="M17 18a5 5 0 0 0-10 0M12 9v-7M4.22 10.22l1.42 1.42M1 18h2M21 18h2M18.36 11.64l1.42-1.42M23 22H1M16 5l-4 4-4-4"/>',
-    chevron: '<path d="M6 9l6 6 6-6"/>'
+    chevron: '<path d="M6 9l6 6 6-6"/>',
+    book: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/>'
   };
   const icon = (name) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${P[name] || P.cloud}</svg>`;
   document.querySelectorAll("[data-icon]").forEach((n) => { n.innerHTML = icon(n.dataset.icon); });
@@ -569,7 +932,7 @@
   //  WIND: smoothed dial, flowing streaks, gust marker, 5-minute history
   // =====================================================================
   const wind = { speed: 0, dir: 0, gust: 0, sSpeed: 0, sDir: 0, has: false, lastRapid: 0, hist: [] };
-  const needle = $("needle"), arc = $("arc"), gtick = $("gtick"), gtag = $("gtag"), spdEl = $("spd"), ripple = $("ripple");
+  const needle = $("needle"), arc = $("arc"), gtick = $("gtick"), spdEl = $("spd"), ripple = $("ripple");
   const flowLines = [...document.querySelectorAll("#needle .fl")];
   const CIRC = 2 * Math.PI * 92;
   const frac = (v) => Math.min(1, Math.pow(Math.max(0, v) / 60, 0.7));
@@ -629,9 +992,7 @@
       gtick.setAttribute("x1", (150 + 84 * Math.cos(t)).toFixed(2)); gtick.setAttribute("y1", (150 + 84 * Math.sin(t)).toFixed(2));
       gtick.setAttribute("x2", (150 + 100 * Math.cos(t)).toFixed(2)); gtick.setAttribute("y2", (150 + 100 * Math.sin(t)).toFixed(2));
       gtick.setAttribute("opacity", "1");
-      gtag.setAttribute("x", (150 + 70 * Math.cos(t)).toFixed(2)); gtag.setAttribute("y", (150 + 70 * Math.sin(t)).toFixed(2));
-      gtag.setAttribute("opacity", "1");
-    } else { gtick.setAttribute("opacity", "0"); gtag.setAttribute("opacity", "0"); }
+    } else { gtick.setAttribute("opacity", "0"); }
 
     // dashed stream inside the dial, moving the way the wind blows
     if (!reduced) phase = (phase + (14 + v * 5) * dt) % 24;
@@ -1060,6 +1421,236 @@
   setInterval(() => {
     if (station && token && !unitOnly && document.visibilityState === "visible") loadForecast(true);
   }, 5 * 60 * 1000);
+
+  // =====================================================================
+  //  Manual: the pictures are built from the app's own formulas and markup,
+  //  so they always match the real screen.
+  // =====================================================================
+  const bd = (n) => `<i class="bd">${n}</i>`;
+  const pin = (n, x, y) => `<i class="bd abs" style="left:${((x + 22) / 3.44).toFixed(2)}%;top:${((y + 22) / 3.44).toFixed(2)}%">${n}</i>`;
+  const tmHTML = (h, m, ap) => `${h}:${m}<small>${ap}</small>`;
+
+  // the whole screen, drawn small, with a marker on each part
+  function screenMap() {
+    const B = (n, x, y) => `<circle class="bg" cx="${x}" cy="${y}" r="11"/><text class="bn" x="${x}" y="${y + 0.5}">${n}</text>`;
+    let tiles = "";
+    for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) tiles += `<rect class="fr" x="${26 + c * 94}" y="${284 + r * 27}" width="86" height="22" rx="6"/>`;
+    let stats = "";
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 3; c++) stats += `<rect class="fr" x="${26 + c * 94}" y="${158 + r * 38}" width="86" height="32" rx="7"/>`;
+    return `<svg class="msvg" viewBox="0 0 640 420" aria-hidden="true">
+      <rect class="ln" x="2" y="2" width="636" height="416" rx="22"/>
+      <rect class="fr" x="14" y="14" width="30" height="30" rx="9"/>
+      <text class="tb" x="52" y="34">Sandbox</text>
+      <rect class="fr" x="122" y="21" width="42" height="16" rx="8"/>
+      <rect class="fr" x="320" y="14" width="92" height="30" rx="15"/><text class="tx" x="366" y="34" text-anchor="middle">Unit only</text>
+      <rect class="fr" x="420" y="14" width="72" height="30" rx="15"/><text class="tx" x="456" y="34" text-anchor="middle">Live</text>
+      <circle class="fr" cx="520" cy="29" r="15"/><g transform="translate(509 18) scale(0.9)" fill="none" stroke="#ffcf7a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${P.book}</g>
+      <circle class="fr" cx="566" cy="29" r="15"/><g transform="translate(555 18) scale(0.9)" fill="none" stroke="#9fb2c7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${P.gear}</g>
+      <rect class="fr" x="14" y="62" width="300" height="184" rx="18"/>
+      <text class="ts" x="26" y="84">HOME</text>
+      <text x="26" y="136" style="fill:#f3f7fb;font:300 52px var(--round)">6.4°</text>
+      ${stats}
+      <rect class="fr" x="14" y="252" width="300" height="156" rx="18"/>
+      <text class="ts" x="26" y="274">CONDITIONS</text>
+      ${tiles}
+      <rect class="fr" x="326" y="62" width="300" height="346" rx="18"/>
+      <text class="ts" x="340" y="84">WIND</text>
+      <circle class="ln" cx="476" cy="190" r="86"/><circle cx="476" cy="190" r="60" fill="none" stroke="#7fd4f5" stroke-width="5" stroke-dasharray="150 400" transform="rotate(-90 476 190)"/>
+      <text x="476" y="200" text-anchor="middle" style="fill:#f3f7fb;font:300 36px var(--round)">14</text>
+      <rect class="fr" x="340" y="296" width="86" height="36" rx="8"/><rect class="fr" x="434" y="296" width="86" height="36" rx="8"/><rect class="fr" x="528" y="296" width="86" height="36" rx="8"/>
+      <path d="M340 380 C370 360 390 392 420 372 S470 356 500 378 S560 366 614 370" fill="none" stroke="#7fd4f5" stroke-width="2.4"/>
+      ${B(1, 186, 29)}${B(2, 366, 60)}${B(3, 456, 60)}${B(4, 520, 60)}${B(5, 566, 60)}
+      ${B(6, 296, 80)}${B(7, 608, 80)}${B(8, 296, 270)}
+    </svg>`;
+  }
+
+  // the Now card, real markup with a marker inside each label
+  function nowCard() {
+    const t = 6.4, rh = 78, wAvg = 5.4, f = feelsLike(t, rh, wAvg);
+    return `<section class="card now">
+      <div class="eyebrow">${bd(1)}Home</div>
+      <div class="head">
+        <p class="temp">${bd(2)}${num(t)}<sup>°C</sup></p>
+        <div class="cond-line"><span class="ic">${icon("partly")}</span><span>Partly Cloudy</span>${bd(3)}</div>
+      </div>
+      <div class="stats">
+        <div class="side-item"><div class="lab">${bd(4)}Feels like</div><div class="val">${num(f.v)}<small>°C</small></div><div class="sub">${f.how}</div></div>
+        <div class="side-item"><div class="lab">${bd(5)}Rain today</div><div class="val">1.2<small>mm</small></div><div class="sub">Raining now</div></div>
+        <div class="side-item"><div class="lab">${bd(6)}Rain, last minute</div><div class="val">0.01<small>mm</small></div><div class="sub word">${rainWord(0.01 * 60)}</div></div>
+        <div class="side-item"><div class="lab">${bd(7)}High / Low</div><div class="val">9°<small>/</small> 3°</div><div class="sub">Today</div></div>
+        <div class="side-item"><div class="lab">${bd(8)}Rain time today</div><div class="val">38<small>min</small></div><div class="sub">Yesterday 190 min</div></div>
+        <div class="side-item"><div class="lab">${bd(9)}Sunrise</div><div class="val">${tmHTML(7, "38", "AM")}</div><div class="sub">Sunset 5:12 PM</div></div>
+      </div>
+      <div class="stamp">${bd(10)} Reading taken at 3:06 PM</div>
+    </section>`;
+  }
+
+  // the Wind card: the real dial drawn with fixed example values
+  function windCard() {
+    const sp = 14, dir = 315, gu = 19.8, lu = 9.7, hi = 23.4;
+    const f = frac(sp), gf = frac(gu), gt = gf * 2 * Math.PI - Math.PI / 2;
+    const gx = (r) => (150 + r * Math.cos(gt)).toFixed(2), gy = (r) => (150 + r * Math.sin(gt)).toFixed(2);
+    const vals = [10, 11, 13, 12, 14, 17, 21, 23.4, 20, 17, 15, 13, 12, 14, 16, 15, 13, 11, 10, 12, 14, 16, 15, 13, 12, 14, 17, 12, 15, 19.8, 17, 13, 9.7, 11.5, 14];
+    const max = Math.max(20, ...vals) * 1.1;
+    const pts = vals.map((v, i) => [(i / (vals.length - 1)) * 300, 52 - (v / max) * 48]);
+    const line = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
+    const svg = `<svg viewBox="-22 -22 344 344" aria-hidden="true">
+      <defs>
+        <filter id="mglow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <linearGradient id="marcg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9be0f8"/><stop offset="1" stop-color="#3f9fd0"/></linearGradient>
+        <radialGradient id="mdisc" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="rgba(127,212,245,0.13)"/><stop offset="1" stop-color="rgba(127,212,245,0)"/></radialGradient>
+      </defs>
+      <circle cx="150" cy="150" r="132" fill="url(#mdisc)"/>
+      <circle cx="150" cy="150" r="132" fill="none" stroke="rgba(255,255,255,0.11)" stroke-width="1.5"/>
+      <g>${$("ticks").innerHTML}</g>
+      <g font-family="-apple-system, system-ui, sans-serif" font-size="15" font-weight="650" text-anchor="middle" dominant-baseline="central" fill="#9fb2c7">
+        <text x="150" y="-6" fill="#f3f7fb">N</text><text x="306" y="150">E</text><text x="150" y="306">S</text><text x="-6" y="150">W</text>
+      </g>
+      <circle cx="150" cy="150" r="92" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="6"/>
+      <circle cx="150" cy="150" r="92" fill="none" stroke="url(#marcg)" stroke-width="6" stroke-linecap="round" transform="rotate(-90 150 150)" stroke-dasharray="${(f * CIRC).toFixed(1)} ${CIRC.toFixed(1)}"/>
+      <line x1="${gx(84)}" y1="${gy(84)}" x2="${gx(100)}" y2="${gy(100)}" stroke="#ffcf7a" stroke-width="3.5" stroke-linecap="round"/>
+      <g transform="rotate(${dir} 150 150)">
+        <g stroke="#7fd4f5" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="16 8" stroke-dashoffset="-6" stroke-opacity="0.55" fill="none">
+          <line x1="126" y1="66" x2="126" y2="98"/><line x1="150" y1="62" x2="150" y2="100"/><line x1="174" y1="66" x2="174" y2="98"/>
+          <line x1="126" y1="202" x2="126" y2="234"/><line x1="150" y1="200" x2="150" y2="238"/><line x1="174" y1="202" x2="174" y2="234"/>
+        </g>
+        <g filter="url(#mglow)" fill="#7fd4f5" stroke="#7fd4f5" stroke-linejoin="round">
+          <circle cx="150" cy="18" r="6.5" stroke="none"/>
+          <path d="M150 48 L141.5 27 L158.5 27 Z" stroke-width="3"/>
+        </g>
+      </g>
+    </svg>`;
+    return `<section class="card wind">
+      <div class="wind-head"><div class="eyebrow">Wind</div><div class="chip">${bd(1)}From the ${compass(dir)}</div></div>
+      <div class="mdial">
+        ${svg}
+        <div class="readout"><div class="spd">${Math.round(sp)}</div><div class="unit">km/h</div><div class="bearing">${dir}°</div></div>
+        ${pin(2, 262, 30)}${pin(3, 32, 32)}${pin(4, 100, 126)}${pin(5, 238, 224)}${pin(6, +gx(112), +gy(112))}${pin(7, 190, 194)}
+      </div>
+      <dl class="wind-stats">
+        <div><dt>${bd(8)}Gust</dt><dd>${num(gu)}<small>km/h</small></dd></div>
+        <div><dt>${bd(9)}Lull</dt><dd>${num(lu)}<small>km/h</small></dd></div>
+        <div><dt>${bd(10)}5 min high</dt><dd>${num(hi)}<small>km/h</small></dd></div>
+      </dl>
+      <svg class="spark" viewBox="0 0 300 56" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient id="msparkg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fd4f5" stop-opacity="0.35"/><stop offset="1" stop-color="#7fd4f5" stop-opacity="0"/></linearGradient></defs>
+        <path d="${line} L300 56 L0 56 Z" fill="url(#msparkg)"/>
+        <path d="${line}" fill="none" stroke="#7fd4f5" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+      </svg>
+      <div class="spark-cap"><span>5 minutes ago</span>${bd(11)}<span>Now</span></div>
+    </section>`;
+  }
+
+  // the Conditions card, with the app's own formulas filling the example values
+  function condCard() {
+    const t = 6.4, rh = 78, pres = 1009.8, dp = dewPoint(t, rh), wb = wetBulb(t, rh), dens = airDensity(t, rh, pres);
+    const T = (n, ic, lab, val, sub) => `<div class="tile"><div class="lab">${bd(n)}<span data-i style="display:grid">${icon(ic)}</span>${lab}</div><div class="val">${val}</div><div class="sub">${sub}</div></div>`;
+    return `<section class="card cond">
+      <div class="eyebrow">Conditions</div>
+      <div class="tiles">
+        ${T(1, "drop", "Humidity", `${rh}<small>%</small>`, `Dew point ${num(dp)}°`)}
+        ${T(2, "gauge", "Pressure", `1016.4<small>mb</small>`, `↘ Falling · stn ${num(pres)}`)}
+        ${T(3, "sun", "UV index", "1.4", uvLabel(1.4))}
+        ${T(4, "solar", "Solar", `180<small>W/m²</small>`, "4.2 klux")}
+        ${T(5, "thermo", "Dew point", `${num(dp)}<small>°C</small>`, dewWord(dp))}
+        ${T(6, "thermo", "Wet bulb", `${num(wb)}<small>°C</small>`, `Delta-T ${num(t - wb)}°`)}
+        ${T(7, "gauge", "Air density", `${num(dens, 3)}<small>kg/m³</small>`, `Station ${num(pres)} mb`)}
+        ${T(8, "rain", "Rain yesterday", `4.8<small>mm</small>`, "190 min of rain")}
+        ${T(9, "bolt", "Lightning", "None", "Nothing this minute")}
+        ${T(10, "bolt", "Lightning 1 hr", `0<small>strikes</small>`, "3 hr: 2 · 90 min ago")}
+        ${T(11, "battery", "Sensor battery", `2.62<small>V</small>`, "↗ Rising over 25 min")}
+        ${T(12, "gauge", "Sensor info", "Firmware 179", "−58 dBm · Up 3d 5h")}
+      </div>
+    </section>`;
+  }
+
+  // one minute of wind: twenty readings, with the gust, average and lull marked
+  function gustLull() {
+    const v = [11, 13, 12, 16, 14, 10, 9.5, 12, 18, 21.5, 19, 15, 13, 11, 10, 12, 14, 17, 15, 12];
+    const hi = Math.max(...v), lo = Math.min(...v), av = v.reduce((a, b) => a + b, 0) / v.length;
+    const X = (i) => 52 + i * (484 / 19), Y = (n) => 232 - (n / 25) * 212;
+    const L = (n, col, lab, letter) => `<line x1="52" x2="540" y1="${Y(n).toFixed(1)}" y2="${Y(n).toFixed(1)}" stroke="${col}" stroke-width="1.6" stroke-dasharray="6 5"/>
+      <circle class="bg" cx="560" cy="${Y(n).toFixed(1)}" r="11" style="fill:${col}"/><text class="bn" x="560" y="${(Y(n) + 0.5).toFixed(1)}">${letter}</text>
+      <text class="tb" x="578" y="${(Y(n) - 3).toFixed(1)}">${lab}</text><text class="ts" x="578" y="${(Y(n) + 12).toFixed(1)}">${n.toFixed(1)} km/h</text>`;
+    const path = v.map((n, i) => (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(n).toFixed(1)).join(" ");
+    const dots = v.map((n, i) => `<circle cx="${X(i).toFixed(1)}" cy="${Y(n).toFixed(1)}" r="${n === hi || n === lo ? 5.5 : 3}" fill="${n === hi ? "#ffcf7a" : n === lo ? "#cfe4f2" : "#7fd4f5"}"/>`).join("");
+    return `<svg class="msvg" viewBox="0 0 700 272" aria-hidden="true">
+      <line class="ln" x1="52" x2="540" y1="232" y2="232"/><line class="ln" x1="52" x2="52" y1="14" y2="232"/>
+      ${L(hi, "#ffcf7a", "Gust", "A")}${L(av, "#7fd4f5", "Average", "B")}${L(lo, "#cfe4f2", "Lull", "C")}
+      <path d="${path}" fill="none" stroke="#7fd4f5" stroke-width="2" stroke-linejoin="round" opacity="0.7"/>${dots}
+      <text class="ts" x="52" y="254" text-anchor="middle">0 s</text><text class="ts" x="296" y="254" text-anchor="middle">30 s</text><text class="ts" x="540" y="254" text-anchor="middle">60 s</text>
+      <text class="ts" x="44" y="${Y(0) + 4}" text-anchor="end">0</text><text class="ts" x="44" y="${Y(25) + 4}" text-anchor="end">25</text>
+    </svg>`;
+  }
+
+  // compass with the eight points and an example wind from the north-west
+  function rose() {
+    const cx = 160, cy = 160, R = 104;
+    let s = `<circle class="ln" cx="${cx}" cy="${cy}" r="${R}"/><circle cx="${cx}" cy="${cy}" r="4" fill="#9fb2c7"/>`;
+    ["N", "NE", "E", "SE", "S", "SW", "W", "NW"].forEach((n, i) => {
+      const a = (i * 45 - 90) * Math.PI / 180, x = cx + (R + 34) * Math.cos(a), y = cy + (R + 34) * Math.sin(a);
+      s += `<line x1="${(cx + R - 7) * 1}" y1="${cy}" x2="${cx + R}" y2="${cy}" stroke="rgba(255,255,255,0.3)" stroke-width="2" transform="rotate(${i * 45 - 90} ${cx} ${cy})"/>`;
+      s += `<text class="tb" x="${x.toFixed(1)}" y="${(y - 5).toFixed(1)}" text-anchor="middle">${n}</text><text class="ts" x="${x.toFixed(1)}" y="${(y + 11).toFixed(1)}" text-anchor="middle">${i * 45}°</text>`;
+    });
+    s += `<g transform="rotate(315 ${cx} ${cy})"><line x1="${cx}" y1="${cy - R + 6}" x2="${cx}" y2="${cy - 12}" stroke="#7fd4f5" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 0"/><circle cx="${cx}" cy="${cy - R + 6}" r="6.5" fill="#7fd4f5"/><path d="M${cx} ${cy - 8} L${cx - 8.5} ${cy - 29} L${cx + 8.5} ${cy - 29} Z" fill="#7fd4f5" stroke="#7fd4f5" stroke-width="3" stroke-linejoin="round"/></g>`;
+    return `<svg class="msvg" viewBox="0 0 320 320" style="max-width:340px;margin:0 auto" aria-hidden="true">${s}</svg>`;
+  }
+
+  // air temperature and wet bulb as two bars: Delta-T is the gap
+  function wetFig() {
+    const air = 14, wet = 11, k = 26, x0 = 100;
+    const xa = x0 + air * k, xw = x0 + wet * k;
+    return `<svg class="msvg" viewBox="0 0 560 170" aria-hidden="true">
+      <text class="tx" x="0" y="42">Air temp</text><rect x="${x0}" y="22" width="${air * k}" height="32" rx="7" fill="#ffcf7a"/><text class="bn" x="${xa - 30}" y="38" style="fill:#1a1405">${num(air)}°</text>
+      <text class="tx" x="0" y="98">Wet bulb</text><rect x="${x0}" y="78" width="${wet * k}" height="32" rx="7" fill="#7fd4f5"/><text class="bn" x="${xw - 30}" y="94" style="fill:#08202e">${num(wet)}°</text>
+      <rect x="${xw}" y="78" width="${xa - xw}" height="32" rx="0" fill="none" stroke="#ffcf7a" stroke-width="1.6" stroke-dasharray="5 4"/>
+      <path d="M${xw} 126 L${xw} 134 L${xa} 134 L${xa} 126" fill="none" stroke="#f3f7fb" stroke-width="1.8"/>
+      <text class="tb" x="${(xw + xa) / 2}" y="154" text-anchor="middle">Delta-T ${num(air - wet)}°</text>
+    </svg>`;
+  }
+
+  $("fig-screen").innerHTML = screenMap();
+  $("fig-now").innerHTML = nowCard();
+  $("fig-wind").innerHTML = windCard();
+  $("fig-gl").innerHTML = gustLull();
+  $("fig-rose").innerHTML = rose();
+  $("fig-cond").innerHTML = condCard();
+  $("fig-wb").innerHTML = wetFig();
+
+  // ---------- open, close and the section bar that follows your place ----------
+  $("mVer").textContent = "Sandbox " + VERSION + " · User's guide";
+  $("mFoot").textContent = "Sandbox " + VERSION + " · test build. Your token and settings are saved on this device only.";
+  const mdlg = $("dlgManual"), mBody = $("mBody"), mNav = $("mNav");
+  const mChips = [...mNav.querySelectorAll("button[data-go]")], mSecs = mChips.map((b) => $(b.dataset.go));
+  function mSpy() {
+    const top = mBody.getBoundingClientRect().top;
+    let at = 0;
+    mSecs.forEach((s, n) => { if (s.getBoundingClientRect().top - top <= 90) at = n; });
+    if (mBody.scrollTop + mBody.clientHeight >= mBody.scrollHeight - 4) at = mSecs.length - 1;
+    mChips.forEach((b, n) => b.setAttribute("aria-current", String(n === at)));
+    const c = mChips[at];
+    if (c.offsetLeft < mNav.scrollLeft + 8 || c.offsetLeft + c.offsetWidth > mNav.scrollLeft + mNav.clientWidth - 8) mNav.scrollTo({ left: Math.max(0, c.offsetLeft - 20) });
+  }
+  let mTick = 0;
+  mBody.addEventListener("scroll", () => { if (!mTick) mTick = requestAnimationFrame(() => { mTick = 0; mSpy(); }); }, { passive: true });
+  const mGo = (id) => mBody.scrollTo({ top: mBody.scrollTop + $(id).getBoundingClientRect().top - mBody.getBoundingClientRect().top, behavior: reduced ? "auto" : "smooth" });
+  for (const box of [mNav, mBody]) box.addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-go]");
+    if (!b) return;
+    b.blur(); mGo(b.dataset.go);
+  });
+  function openManual() {
+    if (typeof dlg.close === "function" && dlg.open) dlg.close();
+    if (typeof mdlg.showModal === "function") { if (!mdlg.open) mdlg.showModal(); } else mdlg.setAttribute("open", "");
+    mBody.scrollTop = 0; mNav.scrollLeft = 0; mSpy();
+    mBody.focus({ preventScroll: true });
+  }
+  const closeManual = () => { if (typeof mdlg.close === "function") mdlg.close(); else mdlg.removeAttribute("open"); };
+  $("manualBtn").addEventListener("click", openManual);
+  $("openManual2").addEventListener("click", openManual);
+  $("mClose").addEventListener("click", closeManual);
+  mdlg.addEventListener("click", (e) => { if (e.target === mdlg) closeManual(); });
+
 
   // =====================================================================
   //  Demo mode (#demo): invented data so the layout can be previewed
