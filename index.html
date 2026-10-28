@@ -159,7 +159,7 @@
   .side-item.feels .lab { font-size: 14px; }
   .side-item.feels .sub { font-size: 16px; }
   /* now card: big temperature, Feels like and High / Low beside it, rain and sun as their own panels */
-  .hero { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 28px; margin: 14px 0 14px; }
+  .hero { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 28px; margin: 14px 0 14px; }
   .temp-col { min-width: 0; flex: none; }
   .hero .temp { margin: 0; }
   .hero .cond-line { margin-top: 8px; }
@@ -175,8 +175,9 @@
   .rain-row .side-item .val { font-size: 26px; margin-top: 3px; white-space: nowrap; }
   .rain-row .side-item .val small { font-size: 13px; }
   .rain-row .side-item .sub { font-size: 13.5px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .subcard.sun { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 8px 14px; }
-  .sun-cell { display: flex; justify-content: center; align-items: baseline; gap: 12px; min-width: 0; }
+  .subcard.sun { display: flex; justify-self: center; width: fit-content; max-width: 100%; align-items: center; padding: 7px 6px; border-radius: 999px; }
+  .sun-cell { display: flex; justify-content: center; align-items: baseline; gap: 10px; padding: 0 20px; min-width: 0; }
+  .sun-cell + .sun-cell { border-left: 1px solid var(--line); }
   .sun-cell .sl { font: 650 12px/1 var(--sans); letter-spacing: 0.09em; text-transform: uppercase; color: var(--soft); }
   .sun-cell .sv { font: 600 24px/1.1 var(--round); white-space: nowrap; }
   .sun-cell .sv small { font: 500 13px var(--sans); color: var(--soft); margin-left: 3px; }
@@ -193,7 +194,7 @@
     .rain-row { gap: 10px; }
     .rain-row .side-item .val { font-size: 22px; }
     .rain-row .side-item .sub { font-size: 12.5px; white-space: normal; overflow: visible; line-height: 1.2; }
-    .subcard.sun { gap: 10px; }
+    .sun-cell { padding: 0 14px; gap: 8px; }
     .sun-cell .sl { font-size: 11px; }
     .sun-cell .sv { font-size: 20px; }
     .temp { font-size: clamp(64px, 19vw, 88px); }
@@ -298,7 +299,7 @@
     .rain-row { margin-top: 5px; }
     .rain-row .side-item .val { font-size: 21px; }
     .lower { gap: 6px; }
-    .subcard.sun { padding: 5px 12px; }
+    .subcard.sun { padding: 4px 4px; }
     .sun-cell .sv { font-size: 21px; }
     .tiles { gap: 5px; margin-top: 8px; }
     .tile { padding: 4px 10px; }
@@ -841,7 +842,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.84";
+  const VERSION = "v0.85";
   const REST = "https://swd.weatherflow.com/swd/rest";
   const WS_URL = "wss://ws.weatherflow.com/swd/data";
   const KEY = "sandboxToken";
