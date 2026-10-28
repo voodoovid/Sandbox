@@ -116,11 +116,6 @@
   .temp sup { font-size: 0.36em; font-weight: 400; vertical-align: 1.25em; margin-left: 2px; letter-spacing: 0; color: var(--soft); }
   .cond-line { display: flex; align-items: center; gap: 10px; font: 550 18px/1.2 var(--round); }
   .cond-line .ic { font-size: 28px; color: var(--warm); display: grid; }
-  .now-meta { display: flex; flex-wrap: wrap; gap: 4px 18px; color: var(--soft); font-size: 15px; margin-top: 8px; }
-  .now-meta b { color: var(--ink); font-weight: 600; }
-  .sun-row { display: flex; flex-wrap: wrap; gap: 6px 20px; color: var(--soft); font-size: 14px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
-  .sun-row span { display: inline-flex; align-items: center; gap: 7px; }
-  .sun-row .i { font-size: 18px; color: var(--warm); }
   .stamp { font-size: 12.5px; color: var(--dim); margin-top: auto; padding-top: 12px; }
 
   /* ---------- wind ---------- */
@@ -156,19 +151,19 @@
   .tile .val small { font: 500 13px var(--sans); color: var(--soft); margin-left: 3px; }
   .tile .sub { font-size: 13px; color: var(--soft); margin-top: 3px; }
 
-  .temp-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; margin: 14px 0 8px; }
-  .temp-row .temp { margin: 0; }
-  .side { display: flex; flex-direction: column; gap: 12px; min-width: 190px; padding-left: 22px; border-left: 1px solid var(--line); }
   .side-item .lab { font: 650 13px/1 var(--sans); letter-spacing: 0.09em; text-transform: uppercase; color: var(--soft); }
   .side-item .val { font: 600 40px/1.05 var(--round); margin-top: 5px; }
   .side-item .val small { font: 500 17px var(--sans); color: var(--soft); margin-left: 4px; }
   .side-item .sub { font: 600 16px/1.2 var(--round); color: var(--soft); margin-top: 3px; }
   .side-item .sub.word { color: var(--air); }
-  .side-stack { display: flex; flex-direction: column; gap: 12px; }
+  .head { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 14px 0 12px; }
+  .head .temp { margin: 0; }
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .stats .side-item { min-width: 0; }
+  .stats .side-item .val, .stats .side-item .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   @media (max-width: 560px) {
     .card { padding: 16px; border-radius: 22px; }
-    .side { flex-direction: row; flex-wrap: wrap; justify-content: space-between; gap: 10px 14px; width: 100%; min-width: 0; padding: 12px 0 0; border-left: 0; border-top: 1px solid var(--line); }
-    .side-item, .side-stack { flex: 1 1 28%; min-width: 0; }
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .side-item .val { font-size: 30px; }
     .side-item .val small { font-size: 14px; }
     .side-item .lab { font-size: 11.5px; }
@@ -227,10 +222,7 @@
     .grid { flex: 1; min-height: 0; gap: 12px; grid-template-rows: auto minmax(0, 1fr); }
     .card { padding: 14px 18px; }
     .temp { font-size: clamp(64px, 10.5vh, 112px); }
-    .temp-row { margin: 8px 0 6px; }
     .cond-line { font-size: 17px; }
-    .now-meta { margin-top: 4px; }
-    .sun-row { margin-top: 10px; padding-top: 10px; }
     .stamp { padding-top: 8px; }
     .cond { display: flex; flex-direction: column; min-height: 0; }
     .tiles { flex: 1; min-height: 0; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 8px; margin-top: 10px; }
@@ -245,24 +237,16 @@
     .wind-stats div { padding: 8px 12px; }
     .wind-stats dd { font-size: 19px; }
     .spark { height: 40px; margin-top: 8px; }
-    .temp-row { flex-direction: column; align-items: flex-start; gap: 8px; margin: 6px 0 14px; }
-    .side { flex-direction: row; justify-content: space-between; gap: 16px; width: 100%; min-width: 0; padding: 10px 0 0; border-left: 0; border-top: 1px solid var(--line); }
-    .side-item .val { font-size: 38px; margin-top: 3px; }
-    .side-item .sub { font-size: 15px; margin-top: 1px; }
+    .head { margin: 8px 0 8px; }
+    .stats { gap: 10px 14px; padding-top: 10px; }
+    .side-item .val { font-size: 32px; margin-top: 3px; }
+    .side-item .sub { font-size: 14px; margin-top: 1px; }
     .tile { padding: 8px 12px; }
     .tile .lab { font-size: 11px; }
     .tile .val { font-size: 21px; margin-top: 4px; }
     .tile .sub { font-size: 12px; margin-top: 1px; }
     /* tighter top card so the rain-time stack still leaves the tiles room on smaller iPads */
-    .temp { font-size: clamp(60px, 9vh, 100px); }
-    .temp-row { margin: 4px 0 4px; gap: 6px; }
-    .side { padding-top: 8px; }
-    .side-stack { gap: 6px; }
-    .side-item .val { font-size: 32px; margin-top: 2px; }
-    .side-item .sub { font-size: 14px; }
-    .cond-line { display: inline-flex; }
-    .now-meta { display: inline-block; margin: 0 0 0 16px; }
-    .sun-row { margin-top: 6px; padding-top: 6px; }
+    .temp { font-size: clamp(60px, 9.5vh, 100px); }
     .stamp { padding-top: 4px; }
     .tile { padding: 5px 10px; }
     .tile .val { margin-top: 1px; font-size: 20px; }
@@ -298,20 +282,18 @@
     <!-- Now -->
     <section class="card now" aria-label="Current conditions">
       <div class="eyebrow" id="place">Home</div>
-      <div class="temp-row">
+      <div class="head">
         <p class="temp" id="temp">--<sup>°C</sup></p>
-        <div class="side">
-          <div class="side-item"><div class="lab">Feels like</div><div class="val" id="feels-val">--</div><div class="sub" id="feels-how">&nbsp;</div></div>
-          <div class="side-stack fc-only">
-          <div class="side-item"><div class="lab" id="rain-lab">Rain today</div><div class="val" id="t-rain">--</div><div class="sub" id="t-rainsub">&nbsp;</div></div>
-          <div class="side-item"><div class="lab">Rain time today</div><div class="val" id="t-rmin">--</div><div class="sub" id="t-rminsub">&nbsp;</div></div>
-          </div>
-          <div class="side-item"><div class="lab">Rain, last minute</div><div class="val" id="t-rainmin">--</div><div class="sub word" id="t-rainword">&nbsp;</div></div>
-        </div>
+        <div class="cond-line fc-only"><span class="ic" id="cond-ic" data-icon="cloud"></span><span id="cond">Waiting for data</span></div>
       </div>
-      <div class="cond-line fc-only"><span class="ic" id="cond-ic" data-icon="cloud"></span><span id="cond">Waiting for data</span></div>
-      <div class="now-meta fc-only"><span id="hilo"></span></div>
-      <div class="sun-row fc-only" id="sun-row"></div>
+      <div class="stats">
+        <div class="side-item"><div class="lab">Feels like</div><div class="val" id="feels-val">--</div><div class="sub" id="feels-how">&nbsp;</div></div>
+        <div class="side-item fc-only"><div class="lab" id="rain-lab">Rain today</div><div class="val" id="t-rain">--</div><div class="sub" id="t-rainsub">&nbsp;</div></div>
+        <div class="side-item"><div class="lab">Rain, last minute</div><div class="val" id="t-rainmin">--</div><div class="sub word" id="t-rainword">&nbsp;</div></div>
+        <div class="side-item fc-only"><div class="lab">High / Low</div><div class="val" id="hilo">--</div><div class="sub">Today</div></div>
+        <div class="side-item fc-only"><div class="lab">Rain time today</div><div class="val" id="t-rmin">--</div><div class="sub" id="t-rminsub">&nbsp;</div></div>
+        <div class="side-item fc-only"><div class="lab">Sunrise</div><div class="val" id="t-sunr">--</div><div class="sub" id="t-suns">&nbsp;</div></div>
+      </div>
       <div class="stamp" id="stamp">Waiting for the first reading</div>
     </section>
 
@@ -338,6 +320,7 @@
           <circle cx="150" cy="150" r="92" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="6"/>
           <circle id="arc" cx="150" cy="150" r="92" fill="none" stroke="url(#arcg)" stroke-width="6" stroke-linecap="round" transform="rotate(-90 150 150)" stroke-dasharray="0 600" stroke-opacity="0"/>
           <line id="gtick" x1="0" y1="0" x2="0" y2="0" stroke="#ffcf7a" stroke-width="3.5" stroke-linecap="round" opacity="0"/>
+          <text id="gtag" x="0" y="0" text-anchor="middle" dominant-baseline="central" font-family="-apple-system, system-ui, sans-serif" font-size="10.5" font-weight="700" letter-spacing="0.8" fill="#ffcf7a" opacity="0">GUST</text>
           <circle id="ripple" class="ripple" cx="150" cy="150" r="70" fill="none" stroke="#7fd4f5" stroke-width="2"/>
           <g id="needle" opacity="0">
             <g stroke="#7fd4f5" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="16 8" fill="none">
@@ -435,7 +418,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.77";
+  const VERSION = "v0.78";
   const REST = "https://swd.weatherflow.com/swd/rest";
   const WS_URL = "wss://ws.weatherflow.com/swd/data";
   const KEY = "sandboxToken";
@@ -586,7 +569,7 @@
   //  WIND: smoothed dial, flowing streaks, gust marker, 5-minute history
   // =====================================================================
   const wind = { speed: 0, dir: 0, gust: 0, sSpeed: 0, sDir: 0, has: false, lastRapid: 0, hist: [] };
-  const needle = $("needle"), arc = $("arc"), gtick = $("gtick"), spdEl = $("spd"), ripple = $("ripple");
+  const needle = $("needle"), arc = $("arc"), gtick = $("gtick"), gtag = $("gtag"), spdEl = $("spd"), ripple = $("ripple");
   const flowLines = [...document.querySelectorAll("#needle .fl")];
   const CIRC = 2 * Math.PI * 92;
   const frac = (v) => Math.min(1, Math.pow(Math.max(0, v) / 60, 0.7));
@@ -646,7 +629,9 @@
       gtick.setAttribute("x1", (150 + 84 * Math.cos(t)).toFixed(2)); gtick.setAttribute("y1", (150 + 84 * Math.sin(t)).toFixed(2));
       gtick.setAttribute("x2", (150 + 100 * Math.cos(t)).toFixed(2)); gtick.setAttribute("y2", (150 + 100 * Math.sin(t)).toFixed(2));
       gtick.setAttribute("opacity", "1");
-    } else gtick.setAttribute("opacity", "0");
+      gtag.setAttribute("x", (150 + 70 * Math.cos(t)).toFixed(2)); gtag.setAttribute("y", (150 + 70 * Math.sin(t)).toFixed(2));
+      gtag.setAttribute("opacity", "1");
+    } else { gtick.setAttribute("opacity", "0"); gtag.setAttribute("opacity", "0"); }
 
     // dashed stream inside the dial, moving the way the wind blows
     if (!reduced) phase = (phase + (14 + v * 5) * dt) % 24;
@@ -947,16 +932,10 @@
     const cIcon = wx((cur && cur.icon) || d0.icon, cText);
     $("cond").textContent = cText || "No summary";
     $("cond-ic").innerHTML = icon(cIcon);
-    if (d0.air_temp_high != null) {
-      const hl = $("hilo"); hl.textContent = "";
-      hl.append(document.createTextNode("High "), el("b", "", rnd(d0.air_temp_high) + "°"), document.createTextNode("  Low "), el("b", "", rnd(d0.air_temp_low) + "°"));
-    }
-    const sun = $("sun-row"); sun.textContent = "";
-    [["sunrise", "Sunrise", d0.sunrise], ["sunset", "Sunset", d0.sunset]].forEach(([ic, lab, t]) => {
-      if (!t) return;
-      const s = el("span"); s.innerHTML = icon(ic); s.append(document.createTextNode(`${lab} ${clock(new Date(t * 1000))}`)); sun.append(s);
-    });
-    sun.classList.toggle("hidden", !sun.children.length);
+    if (d0.air_temp_high != null) $("hilo").innerHTML = `${rnd(d0.air_temp_high)}°<small>/</small> ${rnd(d0.air_temp_low)}°`;
+    const tm = (t) => { const [h, ap] = clock(new Date(t * 1000)).split(/\s+/); return `${h}<small>${ap || ""}</small>`; };
+    if (d0.sunrise) $("t-sunr").innerHTML = tm(d0.sunrise);
+    $("t-suns").textContent = d0.sunset ? `Sunset ${clock(new Date(d0.sunset * 1000))}` : "\u00a0";
     showPressure();
 
     if (lastObs) showObs(lastObs);   // refresh tiles that use forecast data (rain today, pressure trend)
