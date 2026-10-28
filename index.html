@@ -45,8 +45,10 @@
       radial-gradient(700px 480px at -5% 30%, rgba(63,159,208,0.09), transparent 60%),
       linear-gradient(180deg, var(--bg1), var(--bg0) 70%);
     background-attachment: fixed;
-    padding: calc(env(safe-area-inset-top) + 14px) max(16px, env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 36px) max(16px, env(safe-area-inset-left));
+    padding: calc(max(env(safe-area-inset-top), 24px) + 22px) max(16px, env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 36px) max(16px, env(safe-area-inset-left));
   }
+  /* solid cover behind the status bar so nothing scrolls up under it and fades */
+  body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: max(env(safe-area-inset-top), 24px); background: var(--bg1); z-index: 30; pointer-events: none; }
   .wrap { max-width: 1120px; margin: 0 auto; }
   button, input { font: inherit; color: inherit; }
   button { cursor: pointer; }
@@ -217,7 +219,7 @@
   /* ---------- locked single screen: iPad landscape, nothing scrolls ---------- */
   @media (min-width: 1100px) and (min-height: 700px) {
     html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
-    body { height: 100vh; height: 100dvh; padding-top: calc(env(safe-area-inset-top) + 10px); padding-bottom: calc(env(safe-area-inset-bottom) + 12px); }
+    body { height: 100vh; height: 100dvh; padding-top: calc(max(env(safe-area-inset-top), 24px) + 20px); padding-bottom: calc(env(safe-area-inset-bottom) + 12px); }
     .wrap { height: 100%; max-width: none; display: flex; flex-direction: column; }
     .top { margin-bottom: 12px; }
     footer { display: none; }
@@ -284,7 +286,8 @@
         <p class="temp" id="temp">--<sup>°C</sup></p>
         <div class="side">
           <div class="side-item"><div class="lab">Feels like</div><div class="val" id="feels-val">--</div><div class="sub" id="feels-how">&nbsp;</div></div>
-          <div class="side-item fc-only"><div class="lab" id="rain-lab">Rain today</div><div class="val" id="t-rain">--</div><div class="sub" id="t-rainsub">&nbsp;</div><div class="sub" id="t-rmin">&nbsp;</div></div>
+          <div class="side-item fc-only"><div class="lab" id="rain-lab">Rain today</div><div class="val" id="t-rain">--</div><div class="sub" id="t-rainsub">&nbsp;</div></div>
+          <div class="side-item fc-only"><div class="lab">Rain time today</div><div class="val" id="t-rmin">--</div><div class="sub" id="t-rminsub">&nbsp;</div></div>
           <div class="side-item"><div class="lab">Rain, last minute</div><div class="val" id="t-rainmin">--</div><div class="sub word" id="t-rainword">&nbsp;</div></div>
         </div>
       </div>
@@ -413,7 +416,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.72";
+  const VERSION = "v0.73";
   const REST = "https://swd.weatherflow.com/swd/rest";
   const WS_URL = "wss://ws.weatherflow.com/swd/data";
   const KEY = "sandboxToken";
@@ -838,7 +841,8 @@
     const dens = cur.air_density != null ? cur.air_density : airDensity(temp, rh, pres);
     $("t-dens").innerHTML = `${num(dens, 3)}<small>kg/m³</small>`;
     $("t-stn").textContent = `Station ${num(pres)} mb`;
-    $("t-rmin").textContent = cur.precip_minutes_local_day != null ? `${Math.round(cur.precip_minutes_local_day)} min of rain` : "\u00a0";
+    $("t-rmin").innerHTML = cur.precip_minutes_local_day != null ? `${Math.round(cur.precip_minutes_local_day)}<small>min</small>` : "--";
+    $("t-rminsub").textContent = cur.precip_minutes_local_yesterday != null ? `Yesterday ${Math.round(cur.precip_minutes_local_yesterday)} min` : "\u00a0";
     $("t-ryest").innerHTML = cur.precip_accum_local_yesterday != null ? `${num(cur.precip_accum_local_yesterday)}<small>mm</small>` : "--";
     $("t-ryestsub").textContent = cur.precip_minutes_local_yesterday != null ? `${Math.round(cur.precip_minutes_local_yesterday)} min of rain` : "Loading";
     const l1 = cur.lightning_strike_count_last_1hr, l3 = cur.lightning_strike_count_last_3hr, lastE = cur.lightning_strike_last_epoch;
