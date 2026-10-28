@@ -414,7 +414,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.6";
+  const VERSION = "v0.7";
   const REST = "https://swd.weatherflow.com/swd/rest";
   const WS_URL = "wss://ws.weatherflow.com/swd/data";
   const KEY = "sandboxToken";
@@ -549,8 +549,7 @@
   }
   // Rain intensity in mm per hour: light under 2.5, moderate under 7.6, heavy under 50, violent above.
   function rainWord(mmh, ptype) {
-    if (ptype === 2) return "Hail";
-    if (ptype === 3) return "Rain and hail";
+    // Tempest's hail detection is experimental and misfires in heavy rain, so hail is never shown.
     if (!(mmh > 0)) return "No rain";
     if (mmh < 0.5) return "Drizzle";
     if (mmh < 2.5) return "Light rain";
@@ -717,6 +716,7 @@
   let fc = null;          // latest forecast: { daily, cur }
   let lastPres = null;    // station pressure from the sensor
   let lastObs = null;     // latest full observation
+  let rainExtra = 0, rainSeenT = 0;   // live rain added on top of the fetched daily total
 
   async function findStation() {
     setCheck("stations", "wait", "Looking up your station");
@@ -810,8 +810,10 @@
     $("t-lux").textContent = lux >= 1000 ? `${(lux / 1000).toFixed(1)} klux` : `${Math.round(lux)} lux`;
 
     const cur = (fc && fc.cur) || {};
-    const today = cur.precip_accum_local_day;
-    const ptxt = ptype === 1 ? "Raining now" : ptype === 2 ? "Hail now" : ptype === 3 ? "Rain and hail" : "Dry now";
+    // daily total from the forecast feed, plus rain the live feed has reported since that total was fetched
+    if (time > rainSeenT) { rainExtra += rain || 0; rainSeenT = time; }
+    const today = cur.precip_accum_local_day != null ? cur.precip_accum_local_day + rainExtra : null;
+    const ptxt = ptype ? "Raining now" : "Dry now";
     $("t-rain").innerHTML = `${today != null ? num(today) : "--"}<small>mm</small>`;
     $("t-rainsub").textContent = today != null ? ptxt : "Loading daily total";
 
@@ -839,7 +841,7 @@
     $("t-rmin").innerHTML = cur.precip_minutes_local_day != null ? `${Math.round(cur.precip_minutes_local_day)}<small>min</small>` : "--";
     $("t-rminsub").textContent = cur.precip_minutes_local_yesterday != null ? `Yesterday ${Math.round(cur.precip_minutes_local_yesterday)} min` : "Loading";
     $("t-ryest").innerHTML = cur.precip_accum_local_yesterday != null ? `${num(cur.precip_accum_local_yesterday)}<small>mm</small>` : "--";
-    $("t-ryestsub").textContent = cur.precip_accum_local_day != null ? `Today ${num(cur.precip_accum_local_day)} mm` : "Loading";
+    $("t-ryestsub").textContent = today != null ? `Today ${num(today)} mm` : "Loading";
     const l1 = cur.lightning_strike_count_last_1hr, l3 = cur.lightning_strike_count_last_3hr, lastE = cur.lightning_strike_last_epoch;
     $("t-ltgh").innerHTML = l1 != null ? `${l1}<small>strikes</small>` : "--";
     let lsub = l3 != null ? `3 hr: ${l3}` : "Loading";
@@ -870,6 +872,7 @@
     const daily = (data.forecast && data.forecast.daily) || [];
     const cur = data.current_conditions || null;
     fc = { daily, cur };
+    rainExtra = 0; rainSeenT = Date.now() / 1000;   // new daily total already includes rain up to now
 
     // conditions line
     const d0 = daily[0] || {};
@@ -996,6 +999,7 @@
   // iOS suspends sockets in the background; reconnect when back in view.
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState !== "visible" || !station || !token) return;
+    if (!unitOnly) loadForecast(true);
     if (!ws || ws.readyState > 1 || Date.now() - lastMsgAt > 20000) {
       log("Back in view, reconnecting");
       stop();
@@ -1003,13 +1007,13 @@
     }
   });
 
-  // Flag a feed that has gone quiet; refresh the forecast every 30 minutes.
+  // Flag a feed that has gone quiet; refresh the forecast (daily rain total) every 5 minutes.
   setInterval(() => {
     if (ws && ws.readyState === 1 && lastMsgAt && Date.now() - lastMsgAt > 30000) setStatus("quiet");
   }, 5000);
   setInterval(() => {
     if (station && token && !unitOnly && document.visibilityState === "visible") loadForecast(true);
-  }, 30 * 60 * 1000);
+  }, 5 * 60 * 1000);
 
   // =====================================================================
   //  Demo mode (#demo): invented data so the layout can be previewed
