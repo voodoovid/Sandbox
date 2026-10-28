@@ -253,6 +253,21 @@
     .tile .lab { font-size: 11px; }
     .tile .val { font-size: 21px; margin-top: 4px; }
     .tile .sub { font-size: 12px; margin-top: 1px; }
+    /* tighter top card so the rain-time stack still leaves the tiles room on smaller iPads */
+    .temp { font-size: clamp(60px, 9vh, 100px); }
+    .temp-row { margin: 4px 0 4px; gap: 6px; }
+    .side { padding-top: 8px; }
+    .side-stack { gap: 6px; }
+    .side-item .val { font-size: 32px; margin-top: 2px; }
+    .side-item .sub { font-size: 14px; }
+    .cond-line { display: inline-flex; }
+    .now-meta { display: inline-block; margin: 0 0 0 16px; }
+    .sun-row { margin-top: 6px; padding-top: 6px; }
+    .stamp { padding-top: 4px; }
+    .tile { padding: 5px 10px; }
+    .tile .val { margin-top: 1px; font-size: 20px; }
+    .tile .sub { margin-top: 0; line-height: 1.15; }
+    .tiles { gap: 6px; }
   }
 
   footer { text-align: center; font-size: 12px; color: var(--dim); margin-top: 22px; }
@@ -419,7 +434,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.74";
+  const VERSION = "v0.75";
   const REST = "https://swd.weatherflow.com/swd/rest";
   const WS_URL = "wss://ws.weatherflow.com/swd/data";
   const KEY = "sandboxToken";
