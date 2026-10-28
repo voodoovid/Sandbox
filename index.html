@@ -129,7 +129,6 @@
   }
   .compass { position: relative; width: min(100%, 500px); aspect-ratio: 1; margin: 8px auto 6px; }
   .compass svg { width: 100%; height: 100%; display: block; overflow: visible; }
-  .compass .ripple { transform-box: fill-box; transform-origin: center; opacity: 0; }
   .readout { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; pointer-events: none; }
   .spd { font: 300 clamp(64px, 13vw, 124px)/0.9 var(--round); letter-spacing: -0.04em; }
   .unit { font: 600 13px/1 var(--sans); color: var(--soft); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 8px; }
@@ -441,7 +440,6 @@
           <circle cx="150" cy="150" r="92" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="6"/>
           <circle id="arc" cx="150" cy="150" r="92" fill="none" stroke="url(#arcg)" stroke-width="6" stroke-linecap="round" transform="rotate(-90 150 150)" stroke-dasharray="0 600" stroke-opacity="0"/>
           <line id="gtick" x1="0" y1="0" x2="0" y2="0" stroke="#ffcf7a" stroke-width="3.5" stroke-linecap="round" opacity="0"/>
-          <circle id="ripple" class="ripple" cx="150" cy="150" r="70" fill="none" stroke="#7fd4f5" stroke-width="2"/>
           <g id="needle" opacity="0">
             <g stroke="#7fd4f5" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="16 8" fill="none">
               <line class="fl" x1="126" y1="66" x2="126" y2="98"/><line class="fl" x1="150" y1="62" x2="150" y2="100"/><line class="fl" x1="174" y1="66" x2="174" y2="98"/>
@@ -740,8 +738,8 @@
 
       <h4>Status pill</h4>
       <div class="rd2">
-        <span class="status live"><i></i><span>Live</span></span><span>Connected, and data arrived in the last 30 seconds.</span>
-        <span class="status quiet"><i></i><span>Quiet</span></span><span>Connected, but nothing has arrived for over 30 seconds. The app keeps listening.</span>
+        <span class="status live"><i></i><span>Live</span></span><span>Connected, and live wind readings arrived in the last 15 seconds.</span>
+        <span class="status quiet"><i></i><span>Quiet</span></span><span>Connected, but no live wind reading has arrived for over 15 seconds. The app keeps listening and turns Live again when readings resume.</span>
         <span class="status"><i></i><span>Offline</span></span><span>Not connected. The app retries on its own, and reconnects when you return to it.</span>
         <span class="status demo"><i></i><span>Demo</span></span><span>Invented readings, from the <b>#demo</b> address. No connection is made.</span>
       </div>
@@ -769,7 +767,7 @@
       <details class="qa"><summary>Rain today shows dashes.</summary><p>That total comes from the forecast service, so it shows dashes while it loads. It is hidden in Unit only.</p></details>
       <details class="qa"><summary>Pressure differs from other weather apps.</summary><p>Most apps quote sea-level pressure, which is adjusted for height. Sandbox shows that too when the forecast is on, with the sensor's raw reading as "stn". In Unit only it shows the raw reading, which is a little lower.</p></details>
       <details class="qa"><summary>Is my token safe?</summary><p>It lives only in this browser on this device and is sent only to Tempest. It is never in the page or on GitHub, and the log hides it. Tap Remove in Settings to delete it.</p></details>
-      <details class="qa"><summary>The status says Quiet or Offline.</summary><p>Quiet means connected with nothing new for over 30 seconds. Offline means the connection dropped. The app retries by itself, waiting a little longer each time up to 30 seconds, and reconnects when you come back to it. If it stays that way, open Settings and tap Run again.</p></details>
+      <details class="qa"><summary>The status says Quiet or Offline.</summary><p>Quiet means connected with no live wind reading for over 15 seconds. Offline means the connection dropped. The app retries by itself, waiting a little longer each time up to 30 seconds, and reconnects when you come back to it. If it stays that way, open Settings and tap Run again.</p></details>
       <details class="qa"><summary>How do I try it without a station?</summary><p>Add #demo to the end of the web address. You will see invented readings and no connection is made.</p></details>
       <div class="mfoot" id="mFoot"></div>
     </section>
@@ -780,7 +778,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.79";
+  const VERSION = "v0.80";
   const REST = "https://swd.weatherflow.com/swd/rest";
   const WS_URL = "wss://ws.weatherflow.com/swd/data";
   const KEY = "sandboxToken";
@@ -932,7 +930,7 @@
   //  WIND: smoothed dial, flowing streaks, gust marker, 5-minute history
   // =====================================================================
   const wind = { speed: 0, dir: 0, gust: 0, sSpeed: 0, sDir: 0, has: false, lastRapid: 0, hist: [] };
-  const needle = $("needle"), arc = $("arc"), gtick = $("gtick"), spdEl = $("spd"), ripple = $("ripple");
+  const needle = $("needle"), arc = $("arc"), gtick = $("gtick"), spdEl = $("spd");
   const flowLines = [...document.querySelectorAll("#needle .fl")];
   const CIRC = 2 * Math.PI * 92;
   const frac = (v) => Math.min(1, Math.pow(Math.max(0, v) / 60, 0.7));
@@ -1032,14 +1030,6 @@
   }
   requestAnimationFrame(frame);
 
-  function pulse() {
-    if (reduced || !ripple.animate) return;
-    ripple.animate(
-      [{ transform: "scale(0.55)", opacity: 0.5 }, { transform: "scale(1.38)", opacity: 0 }],
-      { duration: 1900, easing: "ease-out" }
-    );
-  }
-
   function renderSpark() {
     const H = wind.hist;
     if (H.length < 2) return;
@@ -1066,7 +1056,6 @@
       wind.hist.push({ t: now, v });
       while (wind.hist.length && wind.hist[0].t < now - 300000) wind.hist.shift();
       renderSpark();
-      pulse();
     }
   }
 
@@ -1087,7 +1076,8 @@
   }
 
   let station = null, ws = null;
-  let retry = 0, retryTimer = null, lastMsgAt = 0, manualClose = false;
+  let retry = 0, retryTimer = null, lastMsgAt = 0, lastWindAt = 0, manualClose = false;
+  const LIVE_WINDOW = 15000;   // the pill says Live only while wind readings keep arriving (every 3 s) within this many ms
   let fc = null;          // latest forecast: { daily, cur }
   let lastPres = null;    // station pressure from the sensor
   let lastObs = null;     // latest full observation
@@ -1156,6 +1146,7 @@
     }
     ws.onopen = () => {
       retry = 0;
+      lastWindAt = Date.now();   // short grace period while the wind stream starts
       log("Live feed open");
       ws.send(JSON.stringify({ type: "listen_start", device_id: station.deviceId, id: "obs" }));
       ws.send(JSON.stringify({ type: "listen_rapid_start", device_id: station.deviceId, id: "wind" }));
@@ -1163,7 +1154,8 @@
     ws.onmessage = (ev) => {
       lastMsgAt = Date.now();
       let m; try { m = JSON.parse(ev.data); } catch { return; }
-      setStatus("live");
+      // Only real wind data counts as live; housekeeping messages must not keep the pill green.
+      if (m.type === "rapid_wind") { lastWindAt = lastMsgAt; setStatus("live"); }
       handle(m);
     };
     ws.onerror = () => log("Live feed error");
@@ -1407,7 +1399,7 @@
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState !== "visible" || !station || !token) return;
     if (!unitOnly) loadForecast(true);
-    if (!ws || ws.readyState > 1 || Date.now() - lastMsgAt > 20000) {
+    if (!ws || ws.readyState > 1 || Date.now() - lastWindAt > 20000) {
       log("Back in view, reconnecting");
       stop();
       connectWS();
@@ -1416,8 +1408,8 @@
 
   // Flag a feed that has gone quiet; refresh the forecast (daily rain total) every 5 minutes.
   setInterval(() => {
-    if (ws && ws.readyState === 1 && lastMsgAt && Date.now() - lastMsgAt > 30000) setStatus("quiet");
-  }, 5000);
+    if (ws && ws.readyState === 1 && lastWindAt && Date.now() - lastWindAt > LIVE_WINDOW) setStatus("quiet");
+  }, 2000);
   setInterval(() => {
     if (station && token && !unitOnly && document.visibilityState === "visible") loadForecast(true);
   }, 5 * 60 * 1000);
