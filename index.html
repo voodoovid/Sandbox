@@ -340,7 +340,7 @@
           <line id="gtick" x1="0" y1="0" x2="0" y2="0" stroke="#ffcf7a" stroke-width="3.5" stroke-linecap="round" opacity="0"/>
           <circle id="ripple" class="ripple" cx="150" cy="150" r="70" fill="none" stroke="#7fd4f5" stroke-width="2"/>
           <g id="needle" opacity="0">
-            <g stroke="#7fd4f5" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="5 11" fill="none">
+            <g stroke="#7fd4f5" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="16 8" fill="none">
               <line class="fl" x1="126" y1="66" x2="126" y2="98"/><line class="fl" x1="150" y1="62" x2="150" y2="100"/><line class="fl" x1="174" y1="66" x2="174" y2="98"/>
               <line class="fl" x1="126" y1="202" x2="126" y2="234"/><line class="fl" x1="150" y1="200" x2="150" y2="238"/><line class="fl" x1="174" y1="202" x2="174" y2="234"/>
             </g>
@@ -435,7 +435,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.76";
+  const VERSION = "v0.77";
   const REST = "https://swd.weatherflow.com/swd/rest";
   const WS_URL = "wss://ws.weatherflow.com/swd/data";
   const KEY = "sandboxToken";
@@ -615,7 +615,7 @@
   }
   if ("ResizeObserver" in window) new ResizeObserver(sizeCanvas).observe(cv.parentElement); else addEventListener("resize", sizeCanvas);
   sizeCanvas();
-  const spawn = () => ({ x: Math.random() * cw, y: Math.random() * ch, age: 0, life: 1.2 + Math.random() * 1.8, k: 0.7 + Math.random() * 0.6 });
+  const spawn = () => ({ x: Math.random() * cw, y: Math.random() * ch, age: 0, life: 2.4 + Math.random() * 2.4, k: 0.7 + Math.random() * 0.6, w: Math.random() * 6.28 });
 
   let shownTxt = "", phase = 0, last = performance.now();
   function frame(now) {
@@ -649,30 +649,37 @@
     } else gtick.setAttribute("opacity", "0");
 
     // dashed stream inside the dial, moving the way the wind blows
-    if (!reduced) phase = (phase + (14 + v * 5) * dt) % 16;
+    if (!reduced) phase = (phase + (14 + v * 5) * dt) % 24;
     const lo = wind.has ? Math.min(0.75, 0.22 + v / 40) : 0;
     flowLines.forEach((ln, i) => {
       ln.setAttribute("stroke-dashoffset", (-(phase + (i % 3) * 5)).toFixed(2));
       ln.setAttribute("stroke-opacity", lo.toFixed(2));
     });
 
-    // streaks across the card
+    // wind across the card: long, soft, curving wisps that drift and sway (rain is short, straight and bright)
     if (!reduced && cw > 0) {
-      const want = wind.has ? Math.round(10 + Math.min(70, v * 2.4)) : 0;
+      const want = wind.has ? Math.round(8 + Math.min(34, v * 1.2)) : 0;
       while (parts.length < want) parts.push(spawn());
       if (parts.length > want) parts.length = want;
       const b = (wind.sDir + 180) * Math.PI / 180, dx = Math.sin(b), dy = -Math.cos(b);
-      const spd = 26 + v * 9, len = 6 + Math.min(30, v * 0.9);
+      const nx = -dy, ny = dx;                                  // sideways, for the sway
+      const spd = 34 + v * 8, len = 46 + Math.min(70, v * 2.2);
       cx.clearRect(0, 0, cw, ch);
-      cx.lineCap = "round"; cx.lineWidth = 1.6;
+      cx.lineCap = "round"; cx.lineWidth = 1.3;
       for (let i = 0; i < parts.length; i++) {
         const p = parts[i];
         p.age += dt;
         if (p.age > p.life) { parts[i] = spawn(); continue; }
         p.x += dx * spd * p.k * dt; p.y += dy * spd * p.k * dt;
-        const a = Math.sin(Math.PI * (p.age / p.life)) * (0.16 + Math.min(0.4, v / 60));
-        cx.strokeStyle = `rgba(127,212,245,${a.toFixed(3)})`;
-        cx.beginPath(); cx.moveTo(p.x, p.y); cx.lineTo(p.x - dx * len * p.k, p.y - dy * len * p.k); cx.stroke();
+        const a = Math.sin(Math.PI * (p.age / p.life)) * (0.12 + Math.min(0.26, v / 70));
+        const L = len * p.k, sway = 9 * Math.sin(p.age * 1.6 + p.w);
+        const tx = p.x - dx * L, ty = p.y - dy * L;
+        const g = cx.createLinearGradient(tx, ty, p.x, p.y);
+        g.addColorStop(0, "rgba(225,240,250,0)"); g.addColorStop(1, `rgba(225,240,250,${a.toFixed(3)})`);
+        cx.strokeStyle = g;
+        cx.beginPath(); cx.moveTo(tx, ty);
+        cx.quadraticCurveTo((p.x + tx) / 2 + nx * sway * 2, (p.y + ty) / 2 + ny * sway * 2, p.x, p.y);
+        cx.stroke();
       }
     }
     requestAnimationFrame(frame);
