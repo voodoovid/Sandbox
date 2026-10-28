@@ -158,24 +158,44 @@
   .side-item.feels .val { font-size: 44px; }
   .side-item.feels .lab { font-size: 14px; }
   .side-item.feels .sub { font-size: 16px; }
-  .head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin: 14px 0 12px; }
-  .temp-col { min-width: 0; }
-  .head .cond-line { margin-top: 8px; }
-  .head .feels { text-align: right; }
-  .head .temp { margin: 0; }
-  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 18px; padding-top: 14px; border-top: 1px solid var(--line); }
-  .stats .side-item { min-width: 0; }
-  .stats .side-item .val, .stats .side-item .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* now card: big temperature, Feels like and High / Low beside it, rain and sun as their own panels */
+  .hero { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 28px; margin: 14px 0 14px; }
+  .temp-col { min-width: 0; flex: none; }
+  .hero .temp { margin: 0; }
+  .hero .cond-line { margin-top: 8px; }
+  .hero-side { display: grid; gap: 14px; min-width: 0; padding-left: 26px; border-left: 1px solid var(--line); }
+  .hero-side .side-item .val, .hero-side .side-item .sub { white-space: nowrap; }
+  .hero-side .hilo .val { font-size: 28px; margin-top: 3px; }
+  .lower { display: grid; gap: 8px; }
+  .subcard { background: rgba(255,255,255,0.04); border: 1px solid var(--line); border-radius: 16px; padding: 10px 14px; min-width: 0; }
+  .sc-title { font: 650 11.5px/1 var(--sans); letter-spacing: 0.11em; text-transform: uppercase; color: var(--air); }
+  .rain-row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 14px; margin-top: 8px; }
+  .rain-row .side-item { min-width: 0; }
+  .rain-row .side-item .lab { font-size: 11.5px; }
+  .rain-row .side-item .val { font-size: 26px; margin-top: 3px; white-space: nowrap; }
+  .rain-row .side-item .val small { font-size: 13px; }
+  .rain-row .side-item .sub { font-size: 13.5px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .subcard.sun { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 8px 14px; }
+  .sun-cell { display: flex; justify-content: center; align-items: baseline; gap: 12px; min-width: 0; }
+  .sun-cell .sl { font: 650 12px/1 var(--sans); letter-spacing: 0.09em; text-transform: uppercase; color: var(--soft); }
+  .sun-cell .sv { font: 600 24px/1.1 var(--round); white-space: nowrap; }
+  .sun-cell .sv small { font: 500 13px var(--sans); color: var(--soft); margin-left: 3px; }
   @media (max-width: 560px) {
     .card { padding: 16px; border-radius: 22px; }
-    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .side-item .val { font-size: 30px; }
     .side-item .val small { font-size: 14px; }
     .side-item .lab { font-size: 11.5px; }
-    .side-item .sub { font-size: 14px; }
-    .side-item.feels .val { font-size: 34px; }
+    .side-item.feels .val { font-size: 32px; }
     .side-item.feels .lab { font-size: 12px; }
     .side-item.feels .sub { font-size: 14px; }
+    .hero { gap: 10px 14px; }
+    .hero-side { padding-left: 14px; gap: 10px; }
+    .hero-side .hilo .val { font-size: 24px; }
+    .rain-row { gap: 10px; }
+    .rain-row .side-item .val { font-size: 22px; }
+    .rain-row .side-item .sub { font-size: 12.5px; white-space: normal; overflow: visible; line-height: 1.2; }
+    .subcard.sun { gap: 10px; }
+    .sun-cell .sl { font-size: 11px; }
+    .sun-cell .sv { font-size: 20px; }
     .temp { font-size: clamp(64px, 19vw, 88px); }
   }
 
@@ -245,15 +265,14 @@
     .wind-stats div { padding: 8px 12px; }
     .wind-stats dd { font-size: 19px; }
     .spark { height: 40px; margin-top: 8px; }
-    .head { flex: 1; margin: 6px 0 8px; }
-    .stats { gap: 12px 14px; padding-top: 10px; }
-    .side-item .lab { font-size: 13.5px; }
-    .side-item .val { font-size: clamp(28px, 4.4vh, 44px); margin-top: 3px; }
-    .side-item .sub { font-size: 15px; margin-top: 1px; }
-    .side-item.feels .val { font-size: clamp(30px, 5vh, 50px); }
+    .hero { flex: 1; flex-wrap: nowrap; margin: 6px 0 8px; }
+    .hero .cond-line { margin-top: 6px; }
+    .side-item.feels .val { font-size: clamp(30px, 5vh, 46px); }
     .side-item.feels .lab { font-size: 14px; }
     .side-item.feels .sub { font-size: 16px; }
-    .head .cond-line { margin-top: 6px; }
+    .hero-side .hilo .val { font-size: clamp(22px, 3.4vh, 30px); }
+    .rain-row .side-item .val { font-size: clamp(20px, 3.1vh, 28px); }
+    .subcard { padding: 8px 14px; }
     .tile { padding: 8px 12px; }
     .tile .lab { font-size: 11px; }
     .tile .val { font-size: 21px; margin-top: 4px; }
@@ -270,12 +289,17 @@
   /* shorter iPads (landscape height under 780px): same layout, tighter so nothing clips */
   @media (min-width: 1100px) and (min-height: 700px) and (max-height: 780px) {
     .temp { font-size: clamp(52px, 8.5vh, 80px); }
-    .head { margin: 2px 0 4px; }
-    .stats { gap: 8px 14px; padding-top: 8px; }
-    .side-item .val { font-size: clamp(24px, 3.9vh, 36px); }
-    .side-item.feels .val { font-size: clamp(28px, 4.6vh, 40px); }
-    .side-item .sub { font-size: 14px; }
+    .hero { margin: 2px 0 4px; gap: 6px 22px; }
+    .hero-side { gap: 8px; padding-left: 20px; }
+    .side-item.feels .val { font-size: clamp(26px, 4.4vh, 36px); }
     .side-item.feels .sub { font-size: 14px; }
+    .hero-side .hilo .val { font-size: 22px; }
+    .subcard { padding: 6px 12px; }
+    .rain-row { margin-top: 5px; }
+    .rain-row .side-item .val { font-size: 21px; }
+    .lower { gap: 6px; }
+    .subcard.sun { padding: 5px 12px; }
+    .sun-cell .sv { font-size: 21px; }
     .tiles { gap: 5px; margin-top: 8px; }
     .tile { padding: 4px 10px; }
   }
@@ -429,19 +453,29 @@
     <!-- Now -->
     <section class="card now" aria-label="Current conditions">
       <div class="eyebrow" id="place">Home</div>
-      <div class="head">
+      <div class="hero">
         <div class="temp-col">
           <p class="temp" id="temp">--<sup>°C</sup></p>
           <div class="cond-line fc-only"><span class="ic" id="cond-ic" data-icon="cloud"></span><span id="cond">Waiting for data</span></div>
         </div>
-        <div class="side-item feels"><div class="lab">Feels like</div><div class="val" id="feels-val">--</div><div class="sub" id="feels-how">&nbsp;</div></div>
+        <div class="hero-side">
+          <div class="side-item feels"><div class="lab">Feels like</div><div class="val" id="feels-val">--</div><div class="sub" id="feels-how">&nbsp;</div></div>
+          <div class="side-item hilo fc-only"><div class="lab">High / Low</div><div class="val" id="hilo">--</div></div>
+        </div>
       </div>
-      <div class="stats">
-        <div class="side-item fc-only"><div class="lab" id="rain-lab">Rain today</div><div class="val" id="t-rain">--</div><div class="sub" id="t-rainsub">&nbsp;</div></div>
-        <div class="side-item"><div class="lab">Rain, last minute</div><div class="val" id="t-rainmin">--</div><div class="sub word" id="t-rainword">&nbsp;</div></div>
-        <div class="side-item fc-only"><div class="lab">High / Low</div><div class="val" id="hilo">--</div><div class="sub">Today</div></div>
-        <div class="side-item fc-only"><div class="lab">Rain time today</div><div class="val" id="t-rmin">--</div><div class="sub" id="t-rminsub">&nbsp;</div></div>
-        <div class="side-item fc-only"><div class="lab">Sunrise</div><div class="val" id="t-sunr">--</div><div class="sub" id="t-suns">&nbsp;</div></div>
+      <div class="lower">
+        <div class="subcard" aria-label="Rain">
+          <div class="sc-title">Rain</div>
+          <div class="rain-row">
+            <div class="side-item fc-only"><div class="lab">Today</div><div class="val" id="t-rain">--</div><div class="sub" id="t-rainsub">&nbsp;</div></div>
+            <div class="side-item"><div class="lab">Last minute</div><div class="val" id="t-rainmin">--</div><div class="sub word" id="t-rainword">&nbsp;</div></div>
+            <div class="side-item fc-only"><div class="lab">Time today</div><div class="val" id="t-rmin">--</div><div class="sub" id="t-rminsub">&nbsp;</div></div>
+          </div>
+        </div>
+        <div class="subcard sun fc-only" aria-label="Sunrise and sunset">
+          <div class="sun-cell"><span class="sl">Sunrise</span><span class="sv" id="t-sunr">--</span></div>
+          <div class="sun-cell"><span class="sl">Sunset</span><span class="sv" id="t-suns">--</span></div>
+        </div>
       </div>
       <div class="stamp" id="stamp">Waiting for the first reading</div>
     </section>
@@ -640,7 +674,7 @@
         <li><i class="bd">6</i><div><b>Rain, last minute</b><p>Rain from the most recent minute, with a word for how hard it is falling (scale below). It reads 0.00 and "No rain" when it is dry.</p></div></li>
         <li><i class="bd">7</i><div><b>High / Low</b><span class="fc">Forecast</span><p>Today's highest and lowest forecast air temperature.</p></div></li>
         <li><i class="bd">8</i><div><b>Rain time today</b><span class="fc">Forecast</span><p>How many minutes it has rained so far today. Yesterday's minutes are underneath.</p></div></li>
-        <li><i class="bd">9</i><div><b>Sunrise</b><span class="fc">Forecast</span><p>Sunrise time today, with sunset underneath.</p></div></li>
+        <li><i class="bd">9</i><div><b>Sunrise and sunset</b><span class="fc">Forecast</span><p>Today's sunrise and sunset times, shown side by side at the same size.</p></div></li>
         <li><i class="bd">10</i><div><b>Reading taken at</b><p>The time of the latest full reading from the sensor. If it stops moving, check the <button type="button" class="xref" data-go="m-set">status pill</button>.</p></div></li>
       </ol>
       <div class="mnote"><span class="lb">Note</span>Items tagged <span class="fc" style="margin:0 2px;padding:2px 7px;border-radius:999px;border:1px solid rgba(127,212,245,0.35);color:var(--air);font:650 10.5px/1.4 var(--sans);letter-spacing:.1em;text-transform:uppercase">Forecast</span> come from Tempest's forecast service. They disappear when <b>Unit only</b> is on.</div>
@@ -807,7 +841,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.83";
+  const VERSION = "v0.84";
   const REST = "https://swd.weatherflow.com/swd/rest";
   const WS_URL = "wss://ws.weatherflow.com/swd/data";
   const KEY = "sandboxToken";
@@ -1320,7 +1354,7 @@
     if (d0.air_temp_high != null) $("hilo").innerHTML = `${rnd(d0.air_temp_high)}°<small>/</small> ${rnd(d0.air_temp_low)}°`;
     const tm = (t) => { const [h, ap] = clock(new Date(t * 1000)).split(/\s+/); return `${h}<small>${ap || ""}</small>`; };
     if (d0.sunrise) $("t-sunr").innerHTML = tm(d0.sunrise);
-    $("t-suns").textContent = d0.sunset ? `Sunset ${clock(new Date(d0.sunset * 1000))}` : "\u00a0";
+    if (d0.sunset) $("t-suns").innerHTML = tm(d0.sunset);
     showPressure();
 
     if (lastObs) showObs(lastObs);   // refresh tiles that use forecast data (rain today, pressure trend)
@@ -1493,19 +1527,29 @@
     const t = 6.4, rh = 78, wAvg = 5.4, f = feelsLike(t, rh, wAvg);
     return `<section class="card now">
       <div class="eyebrow">${bd(1)}Home</div>
-      <div class="head">
+      <div class="hero">
         <div class="temp-col">
           <p class="temp">${bd(2)}${num(t)}<sup>°C</sup></p>
           <div class="cond-line"><span class="ic">${icon("partly")}</span><span>Partly Cloudy</span>${bd(3)}</div>
         </div>
-        <div class="side-item feels"><div class="lab">${bd(4)}Feels like</div><div class="val">${num(f.v)}<small>°C</small></div><div class="sub">${f.how}</div></div>
+        <div class="hero-side">
+          <div class="side-item feels"><div class="lab">${bd(4)}Feels like</div><div class="val">${num(f.v)}<small>°C</small></div><div class="sub">${f.how}</div></div>
+          <div class="side-item hilo"><div class="lab">${bd(7)}High / Low</div><div class="val">9°<small>/</small> 3°</div></div>
+        </div>
       </div>
-      <div class="stats">
-        <div class="side-item"><div class="lab">${bd(5)}Rain today</div><div class="val">1.2<small>mm</small></div><div class="sub">Raining now</div></div>
-        <div class="side-item"><div class="lab">${bd(6)}Rain, last minute</div><div class="val">0.01<small>mm</small></div><div class="sub word">${rainWord(0.01 * 60)}</div></div>
-        <div class="side-item"><div class="lab">${bd(7)}High / Low</div><div class="val">9°<small>/</small> 3°</div><div class="sub">Today</div></div>
-        <div class="side-item"><div class="lab">${bd(8)}Rain time today</div><div class="val">38<small>min</small></div><div class="sub">Yesterday 190 min</div></div>
-        <div class="side-item"><div class="lab">${bd(9)}Sunrise</div><div class="val">${tmHTML(7, "38", "AM")}</div><div class="sub">Sunset 5:12 PM</div></div>
+      <div class="lower">
+        <div class="subcard">
+          <div class="sc-title">Rain</div>
+          <div class="rain-row">
+            <div class="side-item"><div class="lab">${bd(5)}Today</div><div class="val">1.2<small>mm</small></div><div class="sub">Raining now</div></div>
+            <div class="side-item"><div class="lab">${bd(6)}Last minute</div><div class="val">0.01<small>mm</small></div><div class="sub word">${rainWord(0.01 * 60)}</div></div>
+            <div class="side-item"><div class="lab">${bd(8)}Time today</div><div class="val">38<small>min</small></div><div class="sub">Yesterday 190 min</div></div>
+          </div>
+        </div>
+        <div class="subcard sun">
+          <div class="sun-cell"><span class="sl">${bd(9)}Sunrise</span><span class="sv">${tmHTML(7, "38", "AM")}</span></div>
+          <div class="sun-cell"><span class="sl">Sunset</span><span class="sv">${tmHTML(5, "12", "PM")}</span></div>
+        </div>
       </div>
       <div class="stamp">${bd(10)} Reading taken at 3:06 PM</div>
     </section>`;
