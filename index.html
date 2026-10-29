@@ -674,7 +674,7 @@
         <li><i class="bd">5</i><div><b>Rain today</b><span class="fc">Forecast</span><p>Rain so far today in millimetres. 1 mm is one litre of water on every square metre of ground. Underneath: <em>Raining now</em> or <em>Dry now</em>.</p></div></li>
         <li><i class="bd">6</i><div><b>Rain, last minute</b><p>Rain from the most recent minute, with a word for how hard it is falling (scale below). It reads 0.00 and "No rain" when it is dry.</p></div></li>
         <li><i class="bd">7</i><div><b>High / Low</b><span class="fc">Forecast</span><p>Today's highest and lowest forecast air temperature.</p></div></li>
-        <li><i class="bd">8</i><div><b>Rain time today</b><span class="fc">Forecast</span><p>How many minutes it has rained so far today. Yesterday's minutes are underneath.</p></div></li>
+        <li><i class="bd">8</i><div><b>Rain time today</b><span class="fc">Forecast</span><p>How long it has rained so far today, in hours and minutes. Yesterday's total is underneath.</p></div></li>
         <li><i class="bd">9</i><div><b>Sunrise and sunset</b><span class="fc">Forecast</span><p>Today's sunrise and sunset times, shown side by side at the same size.</p></div></li>
         <li><i class="bd">10</i><div><b>Reading taken at</b><p>The time of the latest full reading from the sensor. If it stops moving, check the <button type="button" class="xref" data-go="m-set">status pill</button>.</p></div></li>
       </ol>
@@ -842,7 +842,14 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.86";
+  const VERSION = "v0.87";
+  // minutes -> hours and minutes (e.g. 190 -> "3 h 10 min"); html=true wraps units in <small>
+  function hm(total, html) {
+    const t = Math.max(0, Math.round(total)), h = Math.floor(t / 60), m = t % 60;
+    const u = (x) => html ? `<small>${x}</small>` : ` ${x}`;
+    if (h === 0) return `${m}${u("min")}`;
+    return `${h}${u("h")} ${m}${u("min")}`;
+  }
   const REST = "https://swd.weatherflow.com/swd/rest";
   const WS_URL = "wss://ws.weatherflow.com/swd/data";
   const KEY = "sandboxToken";
@@ -1311,10 +1318,10 @@
     const dens = cur.air_density != null ? cur.air_density : airDensity(temp, rh, pres);
     $("t-dens").innerHTML = `${num(dens, 3)}<small>kg/m³</small>`;
     $("t-stn").textContent = `Station ${num(pres)} mb`;
-    $("t-rmin").innerHTML = cur.precip_minutes_local_day != null ? `${Math.round(cur.precip_minutes_local_day)}<small>min</small>` : "--";
-    $("t-rminsub").textContent = cur.precip_minutes_local_yesterday != null ? `Yesterday ${Math.round(cur.precip_minutes_local_yesterday)} min` : "\u00a0";
+    $("t-rmin").innerHTML = cur.precip_minutes_local_day != null ? hm(cur.precip_minutes_local_day, true) : "--";
+    $("t-rminsub").textContent = cur.precip_minutes_local_yesterday != null ? `Yesterday ${hm(cur.precip_minutes_local_yesterday)}` : "\u00a0";
     $("t-ryest").innerHTML = cur.precip_accum_local_yesterday != null ? `${num(cur.precip_accum_local_yesterday)}<small>mm</small>` : "--";
-    $("t-ryestsub").textContent = cur.precip_minutes_local_yesterday != null ? `${Math.round(cur.precip_minutes_local_yesterday)} min of rain` : "Loading";
+    $("t-ryestsub").textContent = cur.precip_minutes_local_yesterday != null ? `${hm(cur.precip_minutes_local_yesterday)} of rain` : "Loading";
     const l1 = cur.lightning_strike_count_last_1hr, l3 = cur.lightning_strike_count_last_3hr, lastE = cur.lightning_strike_last_epoch;
     $("t-ltgh").innerHTML = l1 != null ? `${l1}<small>strikes</small>` : "--";
     let lsub = l3 != null ? `3 hr: ${l3}` : "Loading";
@@ -1545,7 +1552,7 @@
           <div class="rain-row">
             <div class="side-item"><div class="lab">${bd(5)}Today</div><div class="val">1.2<small>mm</small></div><div class="sub">Raining now</div></div>
             <div class="side-item"><div class="lab">${bd(6)}Last minute</div><div class="val">0.01<small>mm</small></div><div class="sub word">${rainWord(0.01 * 60)}</div></div>
-            <div class="side-item"><div class="lab">${bd(8)}Time today</div><div class="val">38<small>min</small></div><div class="sub">Yesterday 190 min</div></div>
+            <div class="side-item"><div class="lab">${bd(8)}Time today</div><div class="val">38<small>min</small></div><div class="sub">Yesterday 3 h 10 min</div></div>
           </div>
         </div>
         <div class="subcard sun">
