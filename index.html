@@ -842,7 +842,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.85";
+  const VERSION = "v0.86";
   const REST = "https://swd.weatherflow.com/swd/rest";
   const WS_URL = "wss://ws.weatherflow.com/swd/data";
   const KEY = "sandboxToken";
@@ -1066,7 +1066,7 @@
       ln.setAttribute("stroke-opacity", lo.toFixed(2));
     });
 
-    // wind across the card: long, soft, curving wisps that drift and sway (rain is short, straight and bright)
+    // wind across the card: long, soft, straight streaks that fade at both ends and drift sideways (rain is short, straight and bright)
     if (stale) { cx.clearRect(0, 0, cw, ch); parts.length = 0; }
     else if (!reduced && cw > 0) {
       const want = wind.has ? Math.round(8 + Math.min(34, v * 1.2)) : 0;
@@ -1083,13 +1083,14 @@
         if (p.age > p.life) { parts[i] = spawn(); continue; }
         p.x += dx * spd * p.k * dt; p.y += dy * spd * p.k * dt;
         const a = Math.sin(Math.PI * (p.age / p.life)) * (0.12 + Math.min(0.26, v / 70));
-        const L = len * p.k, sway = 9 * Math.sin(p.age * 1.6 + p.w);
-        const tx = p.x - dx * L, ty = p.y - dy * L;
-        const g = cx.createLinearGradient(tx, ty, p.x, p.y);
-        g.addColorStop(0, "rgba(225,240,250,0)"); g.addColorStop(1, `rgba(225,240,250,${a.toFixed(3)})`);
+        // straight streak that fades out at BOTH ends (no bright head, no wavy tail), drifting gently sideways
+        const L = len * p.k, off = 7 * Math.sin(p.age * 1.1 + p.w);
+        const hx = p.x + nx * off, hy = p.y + ny * off;
+        const tx = hx - dx * L, ty = hy - dy * L;
+        const g = cx.createLinearGradient(tx, ty, hx, hy);
+        g.addColorStop(0, "rgba(225,240,250,0)"); g.addColorStop(0.5, `rgba(225,240,250,${a.toFixed(3)})`); g.addColorStop(1, "rgba(225,240,250,0)");
         cx.strokeStyle = g;
-        cx.beginPath(); cx.moveTo(tx, ty);
-        cx.quadraticCurveTo((p.x + tx) / 2 + nx * sway * 2, (p.y + ty) / 2 + ny * sway * 2, p.x, p.y);
+        cx.beginPath(); cx.moveTo(tx, ty); cx.lineTo(hx, hy);
         cx.stroke();
       }
     }
