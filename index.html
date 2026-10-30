@@ -842,7 +842,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.87";
+  const VERSION = "v0.88";
   // minutes -> hours and minutes (e.g. 190 -> "3 h 10 min"); html=true wraps units in <small>
   function hm(total, html) {
     const t = Math.max(0, Math.round(total)), h = Math.floor(t / 60), m = t % 60;
@@ -1213,34 +1213,48 @@
     clearTimeout(retryTimer);
     manualClose = false;
     setCheck("ws", "wait", "Connecting");
+    let sock;
     try {
-      ws = new WebSocket(`${WS_URL}?token=${encodeURIComponent(token)}`);
+      sock = ws = new WebSocket(`${WS_URL}?token=${encodeURIComponent(token)}`);
     } catch (e) {
       setCheck("ws", "fail", "Couldn't open the live feed: " + e.message);
       return;
     }
-    ws.onopen = () => {
-      retry = 0;
+    let gotData = false, limited = false;
+    sock.onopen = () => {
       lastWindAt = Date.now();   // short grace period while the wind stream starts
       log("Live feed open");
-      ws.send(JSON.stringify({ type: "listen_start", device_id: station.deviceId, id: "obs" }));
-      ws.send(JSON.stringify({ type: "listen_rapid_start", device_id: station.deviceId, id: "wind" }));
+      sock.send(JSON.stringify({ type: "listen_start", device_id: station.deviceId, id: "obs" }));
+      sock.send(JSON.stringify({ type: "listen_rapid_start", device_id: station.deviceId, id: "wind" }));
     };
-    ws.onmessage = (ev) => {
+    sock.onmessage = (ev) => {
       lastMsgAt = Date.now();
       let m; try { m = JSON.parse(ev.data); } catch { return; }
+      // v0.88: Tempest reports its connection limit as "Rate limit exceed…"
+      const sm = m && m.status && m.status.status_message;
+      if (sm && /rate limit/i.test(sm)) { limited = true; log("Tempest: " + sm); }
       // Only real wind data counts as live; housekeeping messages must not keep the pill green.
       if (m.type === "rapid_wind") { lastWindAt = lastMsgAt; setStatus("live"); }
+      // v0.88: the retry wait only resets once real data arrives, so a refused feed keeps backing off
+      if (m.type === "rapid_wind" || m.type === "obs_st") { gotData = true; retry = 0; }
       handle(m);
     };
-    ws.onerror = () => log("Live feed error");
-    ws.onclose = (ev) => {
-      setStatus("off");
+    sock.onerror = () => log("Live feed error");
+    sock.onclose = (ev) => {
       log(`Live feed closed (code ${ev.code})`);
-      if (manualClose) return;
-      setCheck("ws", "fail", "Disconnected. Reconnecting automatically.");
+      // v0.88: a feed we already replaced or closed on purpose must never start another one
+      if (manualClose || ws !== sock) return;
+      ws = null;
+      setStatus("off");
       const delay = Math.min(30000, 1000 * Math.pow(2, retry++));
-      retryTimer = setTimeout(connectWS, delay);
+      const secs = Math.round(delay / 1000);
+      if (limited || (!gotData && retry >= 3)) {
+        setCheck("ws", "fail", `Tempest is refusing the live feed, usually because too many are open at once. Close the Sandbox and Whether on other devices. Retrying in ${secs} s.`);
+        log(`Refused, likely the connection limit. Retrying in ${secs} s`);
+      } else {
+        setCheck("ws", "fail", `Disconnected. Reconnecting in ${secs} s.`);
+      }
+      retryTimer = setTimeout(() => { retryTimer = null; connectWS(); }, delay);
     };
   }
 
@@ -1421,7 +1435,7 @@
 
   function stop() {
     manualClose = true;
-    clearTimeout(retryTimer);
+    clearTimeout(retryTimer); retryTimer = null;
     if (ws) { try { ws.close(); } catch {} ws = null; }
   }
 
@@ -1470,9 +1484,12 @@
     applyMode();
   });
 
-  // iOS suspends sockets in the background; reconnect when back in view.
+  // v0.88: close the live feed while hidden so iOS never leaves a frozen one counting against
+  // Tempest's limit (about 10 open at once per account), and open a fresh one when back in view.
+  function hideFeed() { if (ws || retryTimer) { stop(); setStatus("off"); log("Hidden, live feed closed"); } }
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState !== "visible" || !station || !token) return;
+    if (document.visibilityState !== "visible") { hideFeed(); return; }
+    if (!station || !token) return;
     if (!unitOnly) loadForecast(true);
     if (!ws || ws.readyState > 1 || Date.now() - lastWindAt > 20000) {
       log("Back in view, reconnecting");
@@ -1480,10 +1497,18 @@
       connectWS();
     }
   });
+  addEventListener("pagehide", hideFeed);
 
   // Flag a feed that has gone quiet; refresh the forecast (daily rain total) every 5 minutes.
   setInterval(() => {
     if (ws && ws.readyState === 1 && lastWindAt && Date.now() - lastWindAt > LIVE_WINDOW) setStatus("quiet");
+    // v0.88: gentle watchdog: an open feed silent for 30 s is replaced, never while a retry wait is running
+    if (station && token && !manualClose && !retryTimer && document.visibilityState === "visible" &&
+        ws && ws.readyState === 1 && Date.now() - lastWindAt > 30000) {
+      log("No live wind for 30 s, reconnecting");
+      stop();
+      connectWS();
+    }
   }, 2000);
   setInterval(() => {
     if (station && token && !unitOnly && document.visibilityState === "visible") loadForecast(true);
