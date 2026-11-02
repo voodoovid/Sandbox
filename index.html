@@ -592,6 +592,7 @@
           <li><span class="mark" id="c-ws"></span><div><b>Live feed</b><small id="m-ws">Needs a token</small></div></li>
           <li><span class="mark" id="c-obs"></span><div><b>First full reading</b><small id="m-obs">Arrives about once a minute</small></div></li>
           <li><span class="mark" id="c-fc"></span><div><b>Forecast</b><small id="m-fc">Needs a token</small></div></li>
+          <li><span class="mark" id="c-low"></span><div><b>Today's low (history)</b><small id="m-low">Needs a token</small></div></li>
         </ul>
       </div>
     </section>
@@ -842,7 +843,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.88";
+  const VERSION = "v0.89";
   // minutes -> hours and minutes (e.g. 190 -> "3 h 10 min"); html=true wraps units in <small>
   function hm(total, html) {
     const t = Math.max(0, Math.round(total)), h = Math.floor(t / 60), m = t % 60;
@@ -1383,6 +1384,26 @@
     if (lastObs) showObs(lastObs);   // refresh tiles that use forecast data (rain today, pressure trend)
   }
 
+  // v0.89: test for Whether: the lowest and highest temperature the sensor measured since local midnight today
+  async function loadLow() {
+    setCheck("low", "wait", "Loading today's readings");
+    try {
+      const d0 = new Date(); d0.setHours(0, 0, 0, 0);
+      const t0 = Math.floor(d0.getTime() / 1000), t1 = Math.floor(Date.now() / 1000);
+      const data = await getJSON(`/observations/device/${station.deviceId}`, { time_start: t0, time_end: t1 });
+      const obs = (data.obs || []).filter((o) => o && o[7] != null && !isNaN(o[7]));
+      if (!obs.length) throw new Error("Tempest returned no readings for today.");
+      let lo = obs[0], hi = obs[0];
+      obs.forEach((o) => { if (o[7] < lo[7]) lo = o; if (o[7] > hi[7]) hi = o; });
+      const at = (o) => new Date(o[0] * 1000).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      setCheck("low", "pass", `Low ${lo[7].toFixed(1)}° at ${at(lo)}, high ${hi[7].toFixed(1)}° at ${at(hi)} (${obs.length} readings, first ${at(obs[0])})`);
+      log(`Today's low ${lo[7].toFixed(1)} at ${at(lo)}; ${obs.length} readings since midnight`);
+    } catch (e) {
+      setCheck("low", "fail", e.message);
+      log("Today's low failed: " + e.message);
+    }
+  }
+
   async function loadForecast(quiet) {
     if (!quiet) { setCheck("fc", "wait", "Loading"); }
     try {
@@ -1420,16 +1441,19 @@
     showTokenUI();
     if (!token) {
       ["stations", "ws", "fc"].forEach((c) => setCheck(c, "", "Needs a token"));
+      setCheck("low", "", "Needs a token");
       setCheck("obs", "", "Arrives about once a minute");
       openSettings();
       return;
     }
     if (await findStation()) {
       connectWS();
+      loadLow();
       if (unitOnly) setCheck("fc", "", "Off: unit only mode"); else loadForecast(false);
     } else {
       setCheck("ws", "", "Skipped until the station is found");
       setCheck("fc", "", "Skipped until the station is found");
+      setCheck("low", "", "Skipped until the station is found");
     }
   }
 
@@ -1763,7 +1787,7 @@
   function demo() {
     setStatus("demo");
     $("place").textContent = "Demo";
-    ["stations", "ws", "obs", "fc"].forEach((c) => setCheck(c, "", "Demo data, no connection made"));
+    ["stations", "ws", "obs", "fc", "low"].forEach((c) => setCheck(c, "", "Demo data, no connection made"));
     const start = new Date(); start.setHours(0, 0, 0, 0);
     const s0 = start.getTime() / 1000;
     const kinds = [["Clear", "clear-day"], ["Partly Cloudy", "partly-cloudy-day"], ["Possible Rain", "possibly-rainy-day"], ["Cloudy", "cloudy"], ["Rainy", "rainy"], ["Windy", "windy"], ["Clear", "clear-day"]];
