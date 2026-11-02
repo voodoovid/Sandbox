@@ -854,7 +854,7 @@
         <li><i class="bd">1</i><div><b>Access</b><p>Paste your Tempest token and tap Connect. It is saved only on this device, sent only to Tempest, and never stored in the page or on GitHub. <em>Remove</em> deletes it.</p></div></li>
         <li><i class="bd">2</i><div><b>Connection tests</b><p>Four checks that prove each link works. <em>Run again</em> repeats them. The marks are explained below.</p></div></li>
         <li><i class="bd">3</i><div><b>Log</b><p>A running diary of what the app is doing, newest first. It never prints your token.</p></div></li>
-        <li><i class="bd">4</i><div><b>History</b><p>The clock button opens the record of past readings kept on your Mac mini. Enter the Mac mini's address once and tap <em>Save</em>. It opens in a new tab and only works on your home Wi-Fi. The address stays on this device.</p></div></li>
+        <li><i class="bd">4</i><div><b>History</b><p>The clock button opens the record of past readings kept on your Mac mini. Enter the Mac mini's address once and tap <em>Save</em>. It opens that address's <em>/history</em> page in a new tab and only works on your home Wi-Fi. The address stays on this device.</p></div></li>
       </ol>
       <div class="mtests"><ul class="checks" aria-hidden="true">
         <li><span class="mark pass"></span><div><b>Find station</b><small>Found your station, the first one on the account.</small></div></li>
@@ -884,7 +884,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.90";
+  const VERSION = "v0.91";
   // minutes -> hours and minutes (e.g. 190 -> "3 h 10 min"); html=true wraps units in <small>
   function hm(total, html) {
     const t = Math.max(0, Math.round(total)), h = Math.floor(t / 60), m = t % 60;
@@ -993,7 +993,7 @@
       const u = new URL(s);
       if (u.username || u.password || !u.hostname) return "";
       if (!u.port) u.port = "8123";
-      return u.origin + "/";
+      return u.origin + (u.pathname && u.pathname !== "/" ? u.pathname : "/history");
     } catch { return ""; }
   }
   function histRefresh() { hOpen.disabled = !histUrl(hAddr.value) || !hStore.get(); }
@@ -1013,11 +1013,11 @@
     const u = histUrl(hAddr.value);
     if (!u) { hErr.textContent = "That address doesn't look right. Try the Mac mini's name or its number."; return; }
     if (!hStore.set(u)) { hErr.textContent = "Couldn't save on this device (private browsing?)."; return; }
-    hAddr.value = u.replace(/^http:\/\//, "").replace(/\/$/, "");
+    hAddr.value = u.replace(/^http:\/\//, "");
     hErr.textContent = ""; histRefresh();
   });
   // Opened as its own page: a normal link is allowed from a secure page, where reading the Mac mini from this page is not.
-  hOpen.addEventListener("click", () => { const u = hStore.get(); if (u) window.open(u, "_blank", "noopener"); });
+  hOpen.addEventListener("click", () => { const u = histUrl(hStore.get()); if (u) window.open(u, "_blank", "noopener"); });
 
   const checkState = {};
   function setCheck(name, state, msg) {
