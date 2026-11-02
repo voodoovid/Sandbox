@@ -319,11 +319,13 @@
   .hbtn { position: relative; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; border: 1px solid rgba(127,212,245,0.45); background: rgba(127,212,245,0.09); color: var(--air); font-size: 20px; padding: 0; }
   .hbtn:hover { background: rgba(127,212,245,0.18); }
   @media (max-width: 560px) { .hbtn { display: none; } }
-  #dlgHistory .hist-open { width: 100%; margin-top: 14px; min-height: 52px; font-size: 17px; }
-  #dlgHistory .hist-note { display: flex; gap: 10px; align-items: flex-start; margin: 14px 0 0; padding: 12px 14px; border-radius: 14px; background: rgba(255,207,122,0.08); border: 1px solid rgba(255,207,122,0.3); font-size: 13.5px; line-height: 1.5; color: var(--soft); }
-  #dlgHistory .hist-note b { color: var(--warm); font-weight: 650; }
-  #dlgHistory label.lab { display: block; font: 650 11.5px/1 var(--sans); letter-spacing: 0.11em; text-transform: uppercase; color: var(--soft); margin: 0 0 8px; }
-  #dlgHistory .hist-err { color: var(--fail); font-size: 13.5px; margin: 10px 0 0; min-height: 1.2em; }
+  #settings .hist-open { width: 100%; margin-top: 14px; min-height: 52px; font-size: 17px; }
+  #settings .hist-note { display: flex; gap: 10px; align-items: flex-start; margin: 14px 0 0; padding: 12px 14px; border-radius: 14px; background: rgba(255,207,122,0.08); border: 1px solid rgba(255,207,122,0.3); font-size: 13.5px; line-height: 1.5; color: var(--soft); }
+  #settings .hist-note b { color: var(--warm); font-weight: 650; }
+  #settings label.lab { display: block; font: 650 11.5px/1 var(--sans); letter-spacing: 0.11em; text-transform: uppercase; color: var(--soft); margin: 0 0 8px; }
+  #settings .hist-err.ok { color: var(--pass); }
+  #settings .hist-err.hint { color: var(--soft); }
+  #settings .hist-err { color: var(--fail); font-size: 13.5px; margin: 10px 0 0; min-height: 1.2em; }
 
   #dlgManual {
     --mt: calc(max(env(safe-area-inset-top), 24px) + 14px);
@@ -568,12 +570,21 @@
   <div class="sheet-head"><h2 id="set-title">Settings</h2><button class="btn small" id="done" type="button">Done</button></div>
   <div class="sheet-body">
 
-    <section class="set">
+    <section class="set" id="setHistory">
       <h3>History</h3>
-      <div class="panel"><div class="saved">
-        <p>Past readings<span>Saved on the Mac mini, home Wi-Fi only</span></p>
-        <button class="btn ghost" type="button" id="openHist2">Open</button>
-      </div></div>
+      <div class="panel">
+        <p style="margin:0 0 14px;font-size:15px;line-height:1.5">Every reading your Tempest hub sends is saved on the Mac mini at home. Set its address once here, then the clock button opens that record in a new tab.</p>
+        <form id="histForm" autocomplete="off">
+          <label class="lab" for="histAddr">Mac mini address</label>
+          <div class="token-row">
+            <input type="text" id="histAddr" inputmode="url" placeholder="Mac mini name or number" autocapitalize="off" autocorrect="off" spellcheck="false">
+            <button class="btn ghost" type="submit" id="histSave">Save</button>
+          </div>
+          <p class="hist-err" id="histErr" role="status"></p>
+        </form>
+        <button class="btn hist-open" type="button" id="histOpen" disabled>Open history</button>
+        <div class="hist-note"><b>Home only.</b><span>The record never leaves your home network, so this only works on your home Wi-Fi. The address is kept on this device, not in the page or on GitHub.</span></div>
+      </div>
     </section>
 
     <section class="set">
@@ -620,29 +631,6 @@
     </section>
 
     <p class="about" id="about"></p>
-  </div>
-</dialog>
-
-<!-- History -->
-<dialog id="dlgHistory" aria-labelledby="hHist">
-  <div class="sheet-head"><h2 id="hHist">History</h2><button class="btn small" id="histClose" type="button">Close</button></div>
-  <div class="sheet-body">
-    <section class="set">
-      <h3>Past readings</h3>
-      <div class="panel">
-        <p style="margin:0 0 14px;font-size:15px;line-height:1.5">Every reading your Tempest hub sends is saved on the Mac mini at home. This opens that record in a new tab.</p>
-        <form id="histForm" autocomplete="off">
-          <label class="lab" for="histAddr">Mac mini address</label>
-          <div class="token-row">
-            <input type="text" id="histAddr" inputmode="url" placeholder="Mac mini name or number" autocapitalize="off" autocorrect="off" spellcheck="false">
-            <button class="btn ghost" type="submit" id="histSave">Save</button>
-          </div>
-          <p class="hist-err" id="histErr" role="status"></p>
-        </form>
-        <button class="btn hist-open" type="button" id="histOpen" disabled>Open history</button>
-        <div class="hist-note"><b>Home only.</b><span>The record never leaves your home network, so this only works on your home Wi-Fi. The address is kept on this device, not in the page or on GitHub.</span></div>
-      </div>
-    </section>
   </div>
 </dialog>
 
@@ -693,7 +681,7 @@
         <li><i class="bd">2</i><div><b>Unit only</b><p>A switch. On: the forecast is turned off and you see only what the sensor itself measures. <button type="button" class="xref" data-go="m-set">More</button></p></div></li>
         <li><i class="bd">3</i><div><b>Status pill</b><p>Shows how fresh the data is: Live, Quiet, Offline or Demo. <button type="button" class="xref" data-go="m-set">More</button></p></div></li>
         <li><i class="bd">4</i><div><b>Manual</b><p>The book button opens this guide. On a phone, open it from Settings.</p></div></li>
-        <li><i class="bd">5</i><div><b>Settings</b><p>Your token, the connection tests and a log. A red dot on the gear means a test failed.</p></div></li>
+        <li><i class="bd">5</i><div><b>Settings</b><p>Your token, the Mac mini address for History, the connection tests and a log. A red dot on the gear means a test failed.</p></div></li>
         <li><i class="bd">6</i><div><b>Now card</b><p>Temperature, what it feels like, rain and the sun times. <button type="button" class="xref" data-go="m-now">More</button></p></div></li>
         <li><i class="bd">7</i><div><b>Wind card</b><p>The dial, the gust and lull, and the last five minutes. <button type="button" class="xref" data-go="m-wind">More</button></p></div></li>
         <li><i class="bd">8</i><div><b>Conditions card</b><p>Twelve tiles: humidity, pressure, sun, lightning and the sensor itself. <button type="button" class="xref" data-go="m-cond">More</button></p></div></li>
@@ -854,7 +842,7 @@
         <li><i class="bd">1</i><div><b>Access</b><p>Paste your Tempest token and tap Connect. It is saved only on this device, sent only to Tempest, and never stored in the page or on GitHub. <em>Remove</em> deletes it.</p></div></li>
         <li><i class="bd">2</i><div><b>Connection tests</b><p>Four checks that prove each link works. <em>Run again</em> repeats them. The marks are explained below.</p></div></li>
         <li><i class="bd">3</i><div><b>Log</b><p>A running diary of what the app is doing, newest first. It never prints your token.</p></div></li>
-        <li><i class="bd">4</i><div><b>History</b><p>The clock button opens the record of past readings kept on your Mac mini. Enter the Mac mini's address once and tap <em>Save</em>. It opens that address's <em>/history</em> page in a new tab and only works on your home Wi-Fi. The address stays on this device.</p></div></li>
+        <li><i class="bd">4</i><div><b>History</b><p>Enter your Mac mini's address once here and tap <em>Save</em>. After that, the clock button at the top opens the record of past readings straight away, in a new tab. Until it is saved, the clock brings you here. It only works on your home Wi-Fi, and the address stays on this device.</p></div></li>
       </ol>
       <div class="mtests"><ul class="checks" aria-hidden="true">
         <li><span class="mark pass"></span><div><b>Find station</b><small>Found your station, the first one on the account.</small></div></li>
@@ -884,7 +872,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.91";
+  const VERSION = "v0.92";
   // minutes -> hours and minutes (e.g. 190 -> "3 h 10 min"); html=true wraps units in <small>
   function hm(total, html) {
     const t = Math.max(0, Math.round(total)), h = Math.floor(t / 60), m = t % 60;
@@ -979,7 +967,7 @@
 
   // ---------- history (local record on the Mac mini; address kept on this device only) ----------
   const HIST_KEY = "sandbox.historyAddr";
-  const hdlg = $("dlgHistory"), hAddr = $("histAddr"), hErr = $("histErr"), hOpen = $("histOpen");
+  const hAddr = $("histAddr"), hErr = $("histErr"), hOpen = $("histOpen");
   const hStore = {
     get() { try { return localStorage.getItem(HIST_KEY) || ""; } catch { return ""; } },
     set(v) { try { localStorage.setItem(HIST_KEY, v); return true; } catch { return false; } }
@@ -996,28 +984,28 @@
       return u.origin + (u.pathname && u.pathname !== "/" ? u.pathname : "/history");
     } catch { return ""; }
   }
-  function histRefresh() { hOpen.disabled = !histUrl(hAddr.value) || !hStore.get(); }
+  function histRefresh() { hOpen.disabled = !histUrl(hStore.get()); }
+  function goHistory() { const u = histUrl(hStore.get()); if (u) window.open(u, "_blank", "noopener"); }
+  // Clock button: straight to the history page when it is set up, otherwise to the setup in Settings.
   function openHistory() {
-    if (typeof dlg.close === "function" && dlg.open) dlg.close();
-    hAddr.value = hStore.get(); hErr.textContent = ""; histRefresh();
-    if (typeof hdlg.showModal === "function") { if (!hdlg.open) hdlg.showModal(); } else hdlg.setAttribute("open", "");
+    if (histUrl(hStore.get())) { goHistory(); return; }
+    openSettings();
+    hErr.className = "hist-err hint"; hErr.textContent = "Enter the Mac mini's address and tap Save to turn on History.";
+    setTimeout(() => { $("setHistory").scrollIntoView({ block: "start" }); hAddr.focus({ preventScroll: true }); }, 60);
   }
-  const closeHistory = () => { if (typeof hdlg.close === "function") hdlg.close(); else hdlg.removeAttribute("open"); };
   $("histBtn").addEventListener("click", openHistory);
-  $("openHist2").addEventListener("click", openHistory);
-  $("histClose").addEventListener("click", closeHistory);
-  hdlg.addEventListener("click", (e) => { if (e.target === hdlg) closeHistory(); });
-  hAddr.addEventListener("input", () => { hErr.textContent = ""; hOpen.disabled = true; });
+  hAddr.addEventListener("input", () => { hErr.className = "hist-err"; hErr.textContent = ""; });
   $("histForm").addEventListener("submit", (e) => {
     e.preventDefault();
     const u = histUrl(hAddr.value);
-    if (!u) { hErr.textContent = "That address doesn't look right. Try the Mac mini's name or its number."; return; }
+    if (!u) { hErr.className = "hist-err"; hErr.textContent = "That address doesn't look right. Try the Mac mini's name or its number."; return; }
     if (!hStore.set(u)) { hErr.textContent = "Couldn't save on this device (private browsing?)."; return; }
     hAddr.value = u.replace(/^http:\/\//, "");
-    hErr.textContent = ""; histRefresh();
+    hErr.className = "hist-err ok"; hErr.textContent = "Saved. The clock button now opens History."; histRefresh();
   });
   // Opened as its own page: a normal link is allowed from a secure page, where reading the Mac mini from this page is not.
-  hOpen.addEventListener("click", () => { const u = histUrl(hStore.get()); if (u) window.open(u, "_blank", "noopener"); });
+  hOpen.addEventListener("click", goHistory);
+  hAddr.value = (hStore.get() || "").replace(/^http:\/\//, ""); histRefresh();
 
   const checkState = {};
   function setCheck(name, state, msg) {
