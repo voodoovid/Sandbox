@@ -225,6 +225,14 @@
   .saved { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .saved p { margin: 0; font-size: 15px; }
   .saved p span { color: var(--soft); display: block; font-size: 13px; }
+  .saved-btns { display: flex; gap: 8px; flex: none; }
+  /* v0.95: Remove token asks first, in a floating pop-up above Settings */
+  #dlgRemove { width: min(380px, calc(100% - 32px)); text-align: center; padding: 22px 20px 18px; }
+  #dlgRemove h2 { font: 650 20px var(--round); margin: 0 0 8px; }
+  #dlgRemove p { margin: 0 0 18px; font-size: 15px; color: var(--soft); line-height: 1.4; }
+  #dlgRemove .row { display: flex; gap: 10px; }
+  #dlgRemove .btn { flex: 1; }
+  #dlgRemove .btn.danger { background: #e5535f; color: #fff; }
   .checks { list-style: none; margin: 0; padding: 0; }
   .checks li { display: grid; grid-template-columns: 22px 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
   .checks li:last-child { border-bottom: 0; padding-bottom: 0; }
@@ -629,7 +637,10 @@
         </div>
         <div class="saved hidden" id="token-saved">
           <p>Token saved on this device<span>Not stored in the page or on GitHub</span></p>
-          <button class="btn ghost" type="button" id="forget">Remove</button>
+          <div class="saved-btns">
+            <button class="btn ghost" type="button" id="copyTok" title="Copy the token so you can paste it into another app">Copy token</button>
+            <button class="btn ghost" type="button" id="forget" title="Remove the token from this device (asks first)">Remove</button>
+          </div>
         </div>
       </div>
     </section>
@@ -658,6 +669,15 @@
 </dialog>
 
 <!-- Manual -->
+<dialog id="dlgRemove" aria-labelledby="hRemove">
+  <h2 id="hRemove">Remove token?</h2>
+  <p>Your Tempest token will be deleted from this device. Copy it first if you need it again.</p>
+  <div class="row">
+    <button class="btn ghost" type="button" id="rmNo" title="Cancel and keep the token">Keep token</button>
+    <button class="btn danger" type="button" id="rmYes" title="Delete the token from this device">Remove</button>
+  </div>
+</dialog>
+
 <dialog id="dlgManual" aria-labelledby="hManual">
   <header class="mhead">
     <div><span class="ey" id="mVer">Sandbox</span><h2 id="hManual">Manual</h2></div>
@@ -895,7 +915,7 @@
 <script>
 (() => {
   "use strict";
-  const VERSION = "v0.94";
+  const VERSION = "v0.95";
   // minutes -> hours and minutes (e.g. 190 -> "3 h 10 min"); html=true wraps units in <small>
   function hm(total, html) {
     const t = Math.max(0, Math.round(total)), h = Math.floor(t / 60), m = t % 60;
@@ -1607,7 +1627,19 @@
     start();
   });
 
-  $("forget").addEventListener("click", () => {
+  $("forget").addEventListener("click", () => { $("dlgRemove").showModal(); $("rmNo").focus(); });
+  $("rmNo").addEventListener("click", () => $("dlgRemove").close());
+  $("dlgRemove").addEventListener("click", (e) => { if (e.target === $("dlgRemove")) $("dlgRemove").close(); });
+  $("copyTok").addEventListener("click", async () => {
+    const b = $("copyTok"); if (!token) return;
+    let ok = false;
+    try { await navigator.clipboard.writeText(token); ok = true; }
+    catch { try { const a = document.createElement("textarea"); a.value = token; a.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(a); a.select(); ok = document.execCommand("copy"); a.remove(); } catch {} }
+    b.textContent = ok ? "Copied" : "Could not copy";
+    setTimeout(() => { b.textContent = "Copy token"; }, 1600);
+  });
+  $("rmYes").addEventListener("click", () => {
+    $("dlgRemove").close();
     stop();
     store.del();
     token = ""; station = null;
