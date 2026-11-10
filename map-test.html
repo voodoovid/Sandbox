@@ -16,54 +16,66 @@ header{display:flex;align-items:center;gap:12px;flex:none}
 header img{width:34px;height:34px;border-radius:9px}
 h1{font-size:24px;font-weight:800;letter-spacing:-.2px}
 h1 i{font-style:normal;color:var(--y)}
-.ver{margin-left:auto;font-size:13px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid var(--line)}
-main{flex:1;min-height:0;display:grid;grid-template-columns:330px 1fr;gap:12px}
-@media (orientation:portrait){main{grid-template-columns:1fr;grid-template-rows:auto 1fr}}
-.tests{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:12px;overflow:auto;display:flex;flex-direction:column;gap:7px}
-.t{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
-.dot{flex:none;width:34px;height:22px;border-radius:999px;font-size:10.5px;font-weight:800;display:grid;place-items:center;background:var(--wait);color:#07101f}
-.t.pass .dot{background:var(--ok)}.t.fail .dot{background:var(--bad);color:#fff}
+.ver{margin-left:auto;font-size:13px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid var(--line);white-space:nowrap}
+main{flex:1;min-height:0;display:grid;grid-template-columns:340px 1fr;gap:12px}
+@media (orientation:portrait){main{grid-template-columns:1fr;grid-template-rows:minmax(0,45%) 1fr}}
+.tests{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:12px;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.tests h2{font-size:11px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:#bfe3ff;margin:6px 4px 0}
+.t{display:flex;gap:10px;align-items:flex-start;padding:7px 10px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
+.t .dot{margin-top:0;flex:none;width:36px;height:22px;border-radius:999px;font-size:10.5px;font-weight:800;display:grid;place-items:center;background:var(--wait);color:#07101f}
+.t.pass .dot{background:var(--ok);color:#07101f}.t.fail .dot{background:var(--bad);color:#fff}
 .t b{display:block;font-size:14px}
 .t span{display:block;font-size:12px;font-weight:600;color:#c9dcf5;margin-top:2px;word-break:break-word}
-.sum{margin-top:auto;padding:10px;border-radius:14px;text-align:center;font-weight:800;font-size:16px;background:rgba(255,255,255,.08)}
+.sum{margin-top:6px;padding:10px;border-radius:14px;text-align:center;font-weight:800;font-size:16px;background:rgba(255,255,255,.08)}
 .sum.pass{background:rgba(62,207,142,.2);color:var(--ok)}.sum.fail{background:rgba(255,93,108,.2);color:var(--bad)}
 .mapwrap{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--line);min-height:300px}
 #map{position:absolute;inset:0;background:#0b1220}
 .pill{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;border:1.5px solid rgba(255,255,255,.35);background:rgba(10,18,34,.82);color:#fff;font-weight:800;font-size:13px;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .pill.on{background:var(--y);color:#07101f;border-color:var(--y)}
-.top{position:absolute;top:12px;left:12px;right:12px;z-index:500;display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}
-.top .sp{flex:1}
-.leg{padding:6px 8px;border-radius:12px;background:rgba(10,18,34,.86);border:1px solid var(--line);max-width:46%}
-.leg b{display:block;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:#bfe3ff;margin-bottom:4px}
-.leg img{display:block;max-height:150px;max-width:100%;background:#fff;border-radius:6px}
-.ctl{position:absolute;left:12px;right:12px;bottom:12px;z-index:500;display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.top{position:absolute;top:12px;left:12px;right:84px;z-index:500;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.grp{display:flex;gap:4px;padding:3px;border-radius:999px;background:rgba(10,18,34,.82);border:1.5px solid rgba(255,255,255,.3)}
+.grp .pill{border:0;background:none;padding:6px 11px}
+.grp .pill.on{background:var(--y)}
+.side{position:absolute;right:12px;top:50%;transform:translateY(-50%);z-index:500;display:flex;flex-direction:column;gap:8px}
+.side button{width:54px;height:50px;border-radius:14px;border:1.5px solid rgba(255,255,255,.32);background:rgba(10,18,34,.82);color:#fff;font-size:24px;font-weight:800;cursor:pointer}
+.side button.sm{font-size:11px}
+.cross{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;z-index:480;pointer-events:none}
+.cross::before,.cross::after{content:"";position:absolute;background:rgba(255,255,255,.75)}
+.cross::before{left:12px;top:0;width:2px;height:26px}.cross::after{top:12px;left:0;height:2px;width:26px}
+.pin{width:18px;height:18px;border-radius:50%;background:var(--y);border:3px solid #fff;box-shadow:0 0 0 6px rgba(244,185,66,.3)}
+.ctl{position:absolute;left:12px;right:12px;bottom:12px;z-index:500;height:68px;display:flex;align-items:center;gap:12px;padding:0 14px;border-radius:18px;background:var(--card);border:1px solid var(--line);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 .ctl button{flex:none;width:44px;height:44px;border-radius:50%;border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.16);color:#fff;font-size:17px;font-weight:800;cursor:pointer}
-.ctl input{flex:1;accent-color:var(--y)}
-.ctl .tm{flex:none;width:170px;text-align:right;line-height:1.15;white-space:nowrap}
-.ctl .tm b{display:block;font-size:16px;font-variant-numeric:tabular-nums}
+.ctl input{flex:1;min-width:0;accent-color:var(--y)}
+.ctl .tm{flex:none;width:200px;height:44px;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;white-space:nowrap;overflow:hidden}
+.ctl .tm b{font-size:16px;font-variant-numeric:tabular-nums}
+.ctl .tm b.fut{color:var(--y)}
 .ctl .tm span{font-size:12px;color:#bfe3ff}
 .leaflet-rad-pane>.leaflet-layer{transition:opacity .45s ease-out}
 .hint{position:fixed;z-index:999;pointer-events:none;padding:6px 10px;border-radius:10px;font-size:12.5px;background:rgba(10,18,34,.96);border:1px solid var(--line);opacity:0;transition:opacity .15s}
 #map .leaflet-control-attribution{font-size:10px;background:rgba(10,18,34,.75);color:#bfe3ff}
 #map .leaflet-control-attribution a{color:#bfe3ff}
-#map .leaflet-bottom{bottom:78px}
+#map .leaflet-bottom{bottom:84px}
 </style>
 </head>
 <body>
 <header>
   <img src="apple-touch-icon.png" alt="">
-  <h1>Map <i>Test</i> — satellite map, rain &amp; snow types</h1>
-  <span class="ver">Sandbox Map Test v0.98</span>
+  <h1>Map <i>Test</i> — map types, centring &amp; future radar</h1>
+  <span class="ver">Sandbox Map Test v0.99</span>
 </header>
 <main>
   <section class="tests" id="tests"></section>
   <section class="mapwrap">
     <div id="map"></div>
+    <div class="cross" aria-hidden="true"></div>
     <div class="top">
-      <button class="pill on" id="mType" data-hint="Colour by rain, snow or mixed">Rain / Snow type</button>
-      <button class="pill" id="mRate" data-hint="Colour by how hard it is falling">Rain rate</button>
-      <span class="sp"></span>
-      <div class="leg" id="leg"><b>Colour key</b><img id="legImg" alt=""></div>
+      <div class="grp" id="bases"></div>
+      <div class="grp"><button class="pill on" id="mPast" data-hint="Last 3 hours of radar">Past</button><button class="pill" id="mFut" data-hint="Environment Canada's radar projected forward">Future</button></div>
+    </div>
+    <div class="side">
+      <button id="zin" data-hint="Zoom in">+</button>
+      <button id="zout" data-hint="Zoom out">−</button>
+      <button id="ctr" class="sm" data-hint="Centre on the test location">Recentre</button>
     </div>
     <div class="ctl">
       <button id="play" data-hint="Play or pause the animation">❚❚</button>
@@ -76,105 +88,130 @@ main{flex:1;min-height:0;display:grid;grid-template-columns:330px 1fr;gap:12px}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
-/* Sandbox Map Test v0.98 — proves a satellite base map, place labels and Environment Canada's precipitation-type radar
-   (rain / snow / mixed) over 3 hours, before Whether (or not)'s Map gets a Tempest-style look */
-const GEO='https://geo.weather.gc.ca/geomet';
-const TYPE='Radar_1km_SfcPrecipType', RATE='RADAR_1KM_RRAI';
-const ESRI='https://server.arcgisonline.com/ArcGIS/rest/services/';
+/* Sandbox Map Test v0.99 — before Whether (or not) v2.191: proves the extra map types load, the map opens centred at zoom 10
+   and Recentre really centres, and whether Environment Canada's free radar extrapolation (future radar) works and how far ahead */
+const GEO='https://geo.weather.gc.ca/geomet', ESRI='https://server.arcgisonline.com/ArcGIS/rest/services/';
+const LOC=[49.25,-123.1], ZM=10;   // generic Vancouver test point
+const PAST='Radar_1km_SfcPrecipType', FUT={rain:'Radar_1km_RainPrecipRate-Extrapolation',snow:'Radar_1km_SnowPrecipRate-Extrapolation',dbz:'Radar_1km_dBZ-Extrapolation'};
+const BASES={sat:{n:'Satellite',u:'World_Imagery',l:'Reference/World_Boundaries_and_Places'},map:{n:'Map',u:'World_Street_Map'},topo:{n:'Terrain',u:'World_Topo_Map'},dark:{n:'Dark',u:'Canvas/World_Dark_Gray_Base',l:'Canvas/World_Dark_Gray_Reference'}};
 const T=[
+ ['h','Map'],
  ['lib','Map library','Leaflet map engine loads'],
- ['sat','Satellite map','Esri satellite imagery tiles'],
- ['lbl','Place names','Esri city and border labels'],
- ['typT','Rain/snow type times','Precipitation-type radar, last 3 hours'],
- ['typI','Rain/snow type image','A type frame draws on the map'],
- ['typL','Rain/snow type key','Colour key for rain, snow and mixed'],
- ['rteT','Rain rate times','Rain-rate radar, last 3 hours'],
- ['rteI','Rain rate image','A rain-rate frame draws on the map'],
- ['anim','Animation','All type frames ready to play']
+ ['b_sat','Satellite','Esri satellite tiles'],['b_map','Map','Esri street map tiles'],['b_topo','Terrain','Esri topographic tiles'],['b_dark','Dark','Esri dark grey tiles'],['l_dark','Dark place names','Labels for the dark map'],
+ ['h','Centring'],
+ ['open','Opens centred at zoom 10','Test point exactly in the middle'],
+ ['ctr','Recentre centres','After moving away and resizing the map'],
+ ['h','Radar'],
+ ['past','Past radar (3 hours)','Rain / snow type, every 12 minutes'],
+ ['fRain','Future rain times','How far ahead it goes'],['fSnow','Future snow times','How far ahead it goes'],['fDbz','Future radar strength times','How far ahead it goes'],
+ ['fImg','Future rain image','A future frame draws on the map'],
+ ['fKey','Future rain colour key','Legend image loads']
 ];
-const box=document.getElementById('tests');
-T.forEach(([id,b,s])=>box.insertAdjacentHTML('beforeend',`<div class="t" id="t-${id}"><span class="dot">…</span><div><b>${b}</b><span>${s}</span></div></div>`));
+const box=document.getElementById('tests'); let NT=0;
+T.forEach(([id,b,s])=>{ if(id==='h') return box.insertAdjacentHTML('beforeend',`<h2>${b}</h2>`); NT++; box.insertAdjacentHTML('beforeend',`<div class="t" id="t-${id}"><span class="dot">…</span><div><b>${b}</b><span>${s}</span></div></div>`) });
 box.insertAdjacentHTML('beforeend','<div class="sum" id="sum">Testing…</div>');
 const res={};
 function mark(id,ok,msg){ if(res[id]===true) return; res[id]=ok; const e=document.getElementById('t-'+id); e.className='t '+(ok?'pass':'fail'); e.querySelector('.dot').textContent=ok?'PASS':'FAIL'; if(msg) e.querySelector('span:last-child').textContent=msg; summary() }
 function summary(){ const s=document.getElementById('sum'); const n=Object.keys(res).length, bad=Object.values(res).filter(v=>!v).length;
-  if(bad){s.className='sum fail';s.textContent=bad+' test'+(bad>1?'s':'')+' failed'} else if(n===T.length){s.className='sum pass';s.textContent='All tests passed'} else {s.className='sum';s.textContent='Testing… '+n+' of '+T.length} }
+  if(n<NT){s.className='sum';s.textContent='Testing… '+n+' of '+NT+(bad?' ('+bad+' failed)':'');return}
+  s.className='sum '+(bad?'fail':'pass'); s.textContent=bad?bad+' test'+(bad>1?'s':'')+' failed':'All tests passed' }
 const fmtT=d=>d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
-const fmtD=d=>d.toLocaleDateString([],{month:'short',day:'numeric'})+' at '+fmtT(d);
-
+const hm=m=>m>=60?Math.floor(m/60)+' h'+(m%60?' '+m%60+' min':''):m+' min';
 const hint=document.getElementById('hint');
-document.addEventListener('pointerover',e=>{const b=e.target.closest('[data-hint]'); if(!b){hint.style.opacity=0;return} const r=b.getBoundingClientRect(); hint.textContent=b.dataset.hint; hint.style.left=Math.max(8,Math.min(innerWidth-220,r.left))+'px'; hint.style.top=(r.top>50?r.top-36:r.bottom+8)+'px'; hint.style.opacity=1});
+document.addEventListener('pointerover',e=>{const b=e.target.closest('[data-hint]'); if(!b){hint.style.opacity=0;return} const r=b.getBoundingClientRect(); hint.textContent=b.dataset.hint; hint.style.left=Math.max(8,Math.min(innerWidth-240,r.left-120))+'px'; hint.style.top=(r.top>50?r.top-36:r.bottom+8)+'px'; hint.style.opacity=1});
 
-if(!window.L){ mark('lib',false,'Leaflet did not load from cdnjs.cloudflare.com'); throw new Error('no leaflet') }
+if(!window.L){ mark('lib',false,'Leaflet did not load'); throw new Error('no leaflet') }
 mark('lib',true,'Leaflet '+L.version+' loaded');
 
-const map=L.map('map',{zoomControl:false,zoomSnap:.5}).setView([49.25,-123.1],8);
+/* ---- map types: one tile at the test point for each, then the chosen one on the map ---- */
+const tileXY=z=>{ const la=LOC[0]*Math.PI/180,n=2**z; return [Math.floor((LOC[1]+180)/360*n),Math.floor((1-Math.log(Math.tan(la)+1/Math.cos(la))/Math.PI)/2*n)] };
+function probe(id,path){ const [x,y]=tileXY(ZM), im=new Image(), t=setTimeout(()=>mark(id,false,'No answer in 10 s'),10000);
+  im.onload=()=>{ clearTimeout(t); mark(id,true,'Tile loaded ('+im.naturalWidth+'×'+im.naturalHeight+')') };
+  im.onerror=()=>{ clearTimeout(t); mark(id,false,'Tile was refused') };
+  im.src=ESRI+path+`/MapServer/tile/${ZM}/${y}/${x}` }
+Object.entries(BASES).forEach(([k,B])=>probe('b_'+k,B.u)); probe('l_dark',BASES.dark.l);
+
+const map=L.map('map',{zoomControl:false,zoomSnap:.5,minZoom:3,maxZoom:13}).setView(LOC,ZM);
 map.attributionControl.setPrefix(false);
-const sat=L.tileLayer(ESRI+'World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:13,attribution:'Imagery © Esri · Radar: Environment Canada'}).addTo(map);
-sat.once('tileload',()=>mark('sat',true,'Satellite tiles loading'));
-sat.on('tileerror',()=>{ if(!res.sat) mark('sat',false,'Satellite tiles were refused') });
 map.createPane('lbl').style.zIndex=450; map.getPane('lbl').style.pointerEvents='none';
-const lbl=L.tileLayer(ESRI+'Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:13,pane:'lbl'}).addTo(map);
-lbl.once('tileload',()=>mark('lbl',true,'Labels loading'));
-lbl.on('tileerror',()=>{ if(!res.lbl) mark('lbl',false,'Label tiles were refused') });
-map.createPane('rad').style.zIndex=350; map.getPane('rad').style.pointerEvents='none';
+map.createPane('rad').style.zIndex=350; map.getPane('rad').style.pointerEvents='none'; map.getPane('rad').style.opacity=.55;
+let baseL=null,lblL=null;
+const bg=document.getElementById('bases');
+Object.entries(BASES).forEach(([k,B])=>bg.insertAdjacentHTML('beforeend',`<button class="pill" data-b="${k}" data-hint="Show the ${B.n} map">${B.n}</button>`));
+function setBase(k){ const B=BASES[k]; if(baseL) map.removeLayer(baseL); if(lblL) map.removeLayer(lblL); lblL=null;
+  baseL=L.tileLayer(ESRI+B.u+'/MapServer/tile/{z}/{y}/{x}',{maxZoom:13,attribution:'Map © Esri · Radar: Environment Canada'}).addTo(map);
+  if(B.l) lblL=L.tileLayer(ESRI+B.l+'/MapServer/tile/{z}/{y}/{x}',{maxZoom:13,pane:'lbl'}).addTo(map);
+  bg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.b===k)) }
+bg.onclick=e=>{ const b=e.target.closest('[data-b]'); if(b) setBase(b.dataset.b) };
+setBase('sat');
+L.marker(LOC,{interactive:false,icon:L.divIcon({className:'',html:'<div class="pin"></div>',iconSize:[18,18],iconAnchor:[9,9]})}).addTo(map);
 const soft=()=>{ const mpp=156543.03*Math.cos(map.getCenter().lat*Math.PI/180)/Math.pow(2,map.getZoom()), cell=1000/mpp;
   map.getPane('rad').style.filter=`blur(${Math.min(9,Math.max(0,cell*.55)).toFixed(1)}px)` };
 map.on('zoomend',soft); soft();
-map.getPane('rad').style.opacity=.8;
 
-async function times(layer,keepMin){
-  const r=await fetch(`${GEO}?service=WMS&version=1.3.0&request=GetCapabilities&layer=${layer}&LAYERS_REFRESH_RATE=PT1M`,{cache:'no-store'});
+/* ---- centring: where is the test point on screen compared with the middle of the map box? ---- */
+function off(){ const el=document.getElementById('map'), r=el.getBoundingClientRect(), p=map.latLngToContainerPoint(LOC); return Math.hypot(p.x-r.width/2,p.y-r.height/2) }
+function recentre(){ map.invalidateSize({pan:false}); map.setView(LOC,ZM,{animate:false}) }   // the fix for Whether: re-measure the box first
+setTimeout(()=>{ recentre(); const d=off(), z=map.getZoom(); (d<=2&&z===ZM)?mark('open',true,'Zoom '+z+', '+d.toFixed(1)+' px from centre'):mark('open',false,'Zoom '+z+', '+d.toFixed(0)+' px from centre') },800);
+setTimeout(()=>{ map.panBy([260,-140],{animate:false}); const w=document.getElementById('map'); w.style.right='120px';   // move away and shrink the box without telling the map
+  setTimeout(()=>{ w.style.right=''; recentre(); const d=off(); d<=2?mark('ctr',true,d.toFixed(1)+' px from centre after recentre'):mark('ctr',false,d.toFixed(0)+' px from centre') },300) },1600);
+document.getElementById('ctr').onclick=recentre;
+document.getElementById('zin').onclick=()=>map.zoomIn(1);
+document.getElementById('zout').onclick=()=>map.zoomOut(1);
+
+/* ---- radar ---- */
+async function times(layer){
+  const r=await fetch(`${GEO}?service=WMS&version=1.3.0&request=GetCapabilities&layer=${encodeURIComponent(layer)}&LAYERS_REFRESH_RATE=PT1M`,{cache:'no-store'});
   if(!r.ok) throw new Error('HTTP '+r.status);
   const x=new DOMParser().parseFromString(await r.text(),'text/xml');
   const d=[...x.getElementsByTagName('Dimension')].find(n=>n.getAttribute('name')==='time');
   if(!d) throw new Error('no time dimension');
   const v=d.textContent.trim(); let out=[];
-  if(v.includes('/')){ const [a,b,p]=v.split('/'); const step=(+(p.match(/(\d+)M/)||[0,10])[1])*60000; for(let t=+new Date(b); t>=+new Date(a) && out.length<200; t-=step) out.unshift(new Date(t)) }
-  else out=v.split(',').map(s=>new Date(s));
-  const cut=Date.now()-keepMin*60000; return out.filter(t=>+t>=cut);
-}
-const wms=(layer,t)=>L.tileLayer.wms(GEO,{pane:'rad',layers:layer,format:'image/png',transparent:true,version:'1.3.0',time:t.toISOString().replace('.000',''),tileSize:512,zoomOffset:-1,opacity:0,attribution:''});
-const legURL=l=>`${GEO}?service=WMS&version=1.3.0&request=GetLegendGraphic&sld_version=1.1.0&format=image/png&layer=${l}`;
-
-let mode='type', sets={type:[],rate:[]}, idx=0, timer=0, z=1;
-function frames(){ return sets[mode] }
+  for(const part of v.split(',')){ if(part.includes('/')){ const [a,b,p]=part.split('/'); const step=((+(p.match(/(\d+)H/)||[0,0])[1])*60+(+(p.match(/(\d+)M/)||[0,0])[1]))*60000||600000;
+      for(let t=+new Date(a); t<=+new Date(b)&&out.length<400; t+=step) out.push(new Date(t)) } else out.push(new Date(part)) }
+  return out.sort((a,b)=>a-b) }
+const wms=(layer,t)=>L.tileLayer.wms(GEO,{pane:'rad',layers:layer,format:'image/png',transparent:true,version:'1.3.0',time:t.toISOString().replace('.000',''),tileSize:512,zoomOffset:-1,opacity:0,attribution:'',keepBuffer:0,updateWhenZooming:false,updateWhenIdle:true});
+const legURL=l=>`${GEO}?service=WMS&version=1.3.0&request=GetLegendGraphic&sld_version=1.1.0&format=image/png&layer=${encodeURIComponent(l)}`;
+let mode='past', sets={past:[],fut:[]}, idx=0, timer=0, z=1;
+const frames=()=>sets[mode];
 function show(i,fade){ const F=frames(); if(!F.length) return; const p=F[idx], f=F[i];
   if(p&&p!==f){ clearTimeout(p.off); p.off=setTimeout(()=>{ if(frames()[idx]!==p) p.l.setOpacity(0) },fade?520:0) }
   clearTimeout(f.off); f.l.setZIndex(++z); const el=f.l.getContainer(); if(el) el.style.transitionDuration=fade?'':'0s'; f.l.setOpacity(1);
   idx=i; document.getElementById('slide').value=i;
-  const ago=Math.round((Date.now()-f.t)/60000);
-  document.getElementById('tm').innerHTML=`<b>${fmtD(f.t)}</b><span>${ago<=1?'Just now':ago+' min ago'}</span>` }
-function step(){ show((idx+1)%frames().length,true); timer=setTimeout(step,550) }
-function play(on){ clearTimeout(timer); timer=0; document.getElementById('play').textContent=on?'❚❚':'▶'; if(on&&frames().length) timer=setTimeout(step,550) }
-function setMode(m){ Object.values(sets).flat().forEach(f=>f.l.setOpacity(0)); mode=m;
-  document.getElementById('mType').classList.toggle('on',m==='type'); document.getElementById('mRate').classList.toggle('on',m==='rate');
-  document.getElementById('legImg').src=legURL(m==='type'?TYPE:RATE);
-  const F=frames(); document.getElementById('slide').max=Math.max(0,F.length-1); idx=Math.max(0,F.length-1); show(idx); play(true) }
-
-async function prep(key,layer,tId,iId){
-  let ts=[];
-  try{ ts=await times(layer,180); if(!ts.length) throw new Error('list empty'); mark(tId,true,ts.length+' frames, '+fmtT(ts[0])+' – '+fmtT(ts[ts.length-1])) }
-  catch(e){ mark(tId,false,'Could not read times ('+e.message+')'); mark(iId,false,'Skipped: no times'); return }
-  sets[key]=ts.map(t=>({t,l:wms(layer,t)}));
-  const last=sets[key][sets[key].length-1].l;
-  last.once('tileload',()=>mark(iId,true,'Drawing on the map'));
-  last.on('tileerror',()=>{ if(!res[iId]) mark(iId,false,'Image request was refused') });
-  sets[key].forEach(f=>f.l.addTo(map));
-}
-(async()=>{
-  const li=new Image(); li.onload=()=>mark('typL',true,'Key loaded (shown top right)'); li.onerror=()=>mark('typL',false,'Colour key was refused'); li.src=legURL(TYPE);
-  await Promise.all([prep('type',TYPE,'typT','typI'),prep('rate',RATE,'rteT','rteI')]);
-  const F=sets.type; if(!F.length){ mark('anim',false,'Skipped: no type frames'); setMode('rate'); return }
-  let n=0, bad=0; const fin=()=>{ if(n+bad===F.length) bad>F.length*.2?mark('anim',false,bad+' of '+F.length+' frames failed'):mark('anim',true,F.length+' frames loaded over 3 hours') };
-  F.forEach(f=>{ f.l.once('load',()=>{n++;fin()}); });
-  setTimeout(()=>{ if(res.anim===undefined){ bad=F.length-n; fin() } },20000);
-  setMode('type');
-})();
+  const m=Math.round((f.t-Date.now())/60000), fut=m>0;
+  document.getElementById('tm').innerHTML=`<b class="${fut?'fut':''}">${fmtT(f.t)}</b><span>${fut?'in '+hm(m):m===0?'Now':hm(-m)+' ago'}</span>` }
+function step(){ const n=frames().length; if(!n) return; show((idx+1)%n,true); timer=setTimeout(step,600) }
+function play(on){ clearTimeout(timer); timer=0; document.getElementById('play').textContent=on?'❚❚':'▶'; if(on&&frames().length) timer=setTimeout(step,600) }
+function setMode(m){ play(false); frames().forEach(f=>{ f.l.setOpacity(0); map.removeLayer(f.l) }); mode=m;
+  document.getElementById('mPast').classList.toggle('on',m==='past'); document.getElementById('mFut').classList.toggle('on',m==='fut');
+  const F=frames(); F.forEach(f=>f.l.addTo(map)); document.getElementById('slide').max=Math.max(0,F.length-1); idx=m==='past'?Math.max(0,F.length-1):0; show(idx); play(true) }
+document.getElementById('mPast').onclick=()=>setMode('past');
+document.getElementById('mFut').onclick=()=>setMode('fut');
 document.getElementById('play').onclick=()=>play(!timer);
 document.getElementById('slide').oninput=e=>{ play(false); show(+e.target.value) };
-document.getElementById('mType').onclick=()=>setMode('type');
-document.getElementById('mRate').onclick=()=>setMode('rate');
+
+(async()=>{
+  try{ let ts=(await times(PAST)).filter(t=>+t>=Date.now()-180*60000); for(let i=ts.length-2;i>=0;i-=2) ts.splice(i,1);
+    if(!ts.length) throw new Error('list empty');
+    sets.past=ts.map(t=>({t,l:wms(PAST,t)})); mark('past',true,ts.length+' frames, '+fmtT(ts[0])+' – '+fmtT(ts[ts.length-1]));
+    setMode('past') }
+  catch(e){ mark('past',false,'Could not read times ('+e.message+')') }
+  const fut={};
+  await Promise.all([['fRain','rain'],['fSnow','snow'],['fDbz','dbz']].map(async([id,k])=>{
+    try{ const ts=await times(FUT[k]); if(!ts.length) throw new Error('list empty');
+      const last=ts[ts.length-1], ahead=Math.round((last-Date.now())/60000), stepM=ts.length>1?Math.round((ts[1]-ts[0])/60000):0;
+      fut[k]=ts.filter(t=>+t>=Date.now()-10*60000);
+      ahead>0?mark(id,true,'Up to '+fmtT(last)+' (about '+hm(ahead)+' ahead), '+ts.length+' frames, every '+stepM+' min')
+             :mark(id,false,'Latest time '+fmtT(last)+' is not in the future') }
+    catch(e){ mark(id,false,'Could not read times ('+e.message+')') } }));
+  const li=new Image(); li.onload=()=>mark('fKey',true,'Key loaded'); li.onerror=()=>mark('fKey',false,'Colour key was refused'); li.src=legURL(FUT.rain);
+  const F=fut.rain||[]; if(!F.length){ mark('fImg',false,'Skipped: no future rain times'); return }
+  sets.fut=F.map(t=>({t,l:wms(FUT.rain,t)}));
+  const probeL=wms(FUT.rain,F[F.length-1]); probeL.setOpacity(0).addTo(map);
+  let done=false; probeL.once('tileload',()=>{ done=true; mark('fImg',true,'Future frame for '+fmtT(F[F.length-1])+' drew'); map.removeLayer(probeL) });
+  probeL.on('tileerror',()=>{ if(!done){ done=true; mark('fImg',false,'Image request was refused'); map.removeLayer(probeL) } });
+  setTimeout(()=>{ if(!done){ done=true; mark('fImg',false,'No image in 15 s'); map.removeLayer(probeL) } },15000);
+})();
 </script>
 </body>
 </html>
