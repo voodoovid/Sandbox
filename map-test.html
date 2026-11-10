@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Map Test</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{--y:#f4b942;--ok:#3ecf8e;--bad:#ff5d6c;--wait:#8aa0bf;--card:rgba(10,18,34,.92);--line:rgba(255,255,255,.16)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#07101f;color:#fff;font:600 15px/1.3 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif}
+body{display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 12px) calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 12px) calc(env(safe-area-inset-left) + 16px);gap:12px}
+header{display:flex;align-items:center;gap:12px;flex:none}
+header img{width:34px;height:34px;border-radius:9px}
+h1{font-size:24px;font-weight:800;letter-spacing:-.2px}
+h1 i{font-style:normal;color:var(--y)}
+.ver{margin-left:auto;font-size:13px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid var(--line)}
+main{flex:1;min-height:0;display:grid;grid-template-columns:330px 1fr;gap:12px}
+@media (orientation:portrait){main{grid-template-columns:1fr;grid-template-rows:auto 1fr}}
+.tests{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:12px;overflow:auto;display:flex;flex-direction:column;gap:8px}
+.t{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
+.dot{flex:none;width:30px;height:22px;border-radius:999px;font-size:11px;font-weight:800;display:grid;place-items:center;background:var(--wait);color:#07101f}
+.t.pass .dot{background:var(--ok)}.t.fail .dot{background:var(--bad);color:#fff}
+.t b{display:block;font-size:14.5px}
+.t span{display:block;font-size:12.5px;font-weight:600;color:#c9dcf5;margin-top:2px;word-break:break-word}
+.sum{margin-top:auto;padding:10px;border-radius:14px;text-align:center;font-weight:800;font-size:16px;background:rgba(255,255,255,.08)}
+.sum.pass{background:rgba(62,207,142,.2);color:var(--ok)}.sum.fail{background:rgba(255,93,108,.2);color:var(--bad)}
+.mapwrap{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--line);min-height:300px}
+#map{position:absolute;inset:0;background:#0b1220}
+.ctl{position:absolute;left:12px;right:12px;bottom:12px;z-index:500;display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.ctl button{flex:none;width:44px;height:44px;border-radius:50%;border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.16);color:#fff;font-size:18px;font-weight:800;cursor:pointer}
+.ctl input{flex:1;accent-color:var(--y)}
+.ctl .tm{flex:none;min-width:92px;text-align:right;font-size:17px;font-weight:800;font-variant-numeric:tabular-nums}
+.leg{position:absolute;top:12px;right:12px;z-index:500;display:flex;gap:8px}
+.leg button{padding:7px 12px;border-radius:999px;border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.16);color:#fff;font-weight:800;font-size:13px;cursor:pointer}
+.leg button.off{opacity:.45}
+.hint{position:fixed;z-index:999;pointer-events:none;padding:6px 10px;border-radius:10px;font-size:12.5px;background:rgba(10,18,34,.96);border:1px solid var(--line);opacity:0;transition:opacity .15s}
+.leaflet-control-attribution{font-size:10px}
+</style>
+</head>
+<body>
+<header>
+  <img src="apple-touch-icon.png" alt="">
+  <h1>Map <i>Test</i> — moving rain &amp; clouds</h1>
+  <span class="ver">Sandbox Map Test v0.97</span>
+</header>
+<main>
+  <section class="tests" id="tests"></section>
+  <section class="mapwrap">
+    <div id="map"></div>
+    <div class="leg">
+      <button id="tRad" data-hint="Show or hide the rain radar">Rain</button>
+      <button id="tCld" data-hint="Show or hide the satellite clouds">Clouds</button>
+    </div>
+    <div class="ctl">
+      <button id="play" data-hint="Play or pause the animation">❚❚</button>
+      <input id="slide" type="range" min="0" max="0" value="0" data-hint="Drag to pick a time">
+      <span class="tm" id="tm">--:--</span>
+    </div>
+  </section>
+</main>
+<div class="hint" id="hint"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+/* Sandbox Map Test v0.97 — proves Environment Canada radar + GOES-West cloud layers load and animate before Whether (or not) gets a Map */
+const GEO='https://geo.weather.gc.ca/geomet';
+const RAD='RADAR_1KM_RRAI', CLD='GOES-West_1km_DayVis-NightIR';
+const T=[
+ ['lib','Map library','Leaflet map engine loads'],
+ ['base','Base map','Street/coast map tiles load'],
+ ['radT','Rain radar times','Environment Canada radar frame list'],
+ ['radI','Rain radar image','A radar frame draws on the map'],
+ ['cldT','Cloud satellite times','GOES-West cloud frame list'],
+ ['cldI','Cloud satellite image','A cloud frame draws on the map'],
+ ['anim','Animation','All frames ready to play smoothly']
+];
+const box=document.getElementById('tests');
+T.forEach(([id,b,s])=>box.insertAdjacentHTML('beforeend',`<div class="t" id="t-${id}"><span class="dot">…</span><div><b>${b}</b><span>${s}</span></div></div>`));
+box.insertAdjacentHTML('beforeend','<div class="sum" id="sum">Testing…</div>');
+const res={};
+function mark(id,ok,msg){ if(res[id]!==undefined && res[id]===ok) return; res[id]=ok; const e=document.getElementById('t-'+id); e.className='t '+(ok?'pass':'fail'); e.querySelector('.dot').textContent=ok?'PASS':'FAIL'; if(msg) e.querySelector('span:last-child').textContent=msg; summary(); }
+function summary(){ const s=document.getElementById('sum'); const n=Object.keys(res).length, bad=Object.values(res).filter(v=>!v).length;
+  if(bad){s.className='sum fail';s.textContent=bad+' test'+(bad>1?'s':'')+' failed'} else if(n===T.length){s.className='sum pass';s.textContent='All tests passed'} else {s.className='sum';s.textContent='Testing… '+n+' of '+T.length} }
+const fmt=d=>d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+
+/* hover hints */
+const hint=document.getElementById('hint');
+document.addEventListener('pointerover',e=>{const b=e.target.closest('[data-hint]'); if(!b){hint.style.opacity=0;return} const r=b.getBoundingClientRect(); hint.textContent=b.dataset.hint; hint.style.left=Math.max(8,Math.min(innerWidth-220,r.left))+'px'; hint.style.top=(r.top>50?r.top-36:r.bottom+8)+'px'; hint.style.opacity=1});
+
+if(!window.L){ mark('lib',false,'Leaflet did not load from cdnjs.cloudflare.com'); throw new Error('no leaflet') }
+mark('lib',true,'Leaflet '+L.version+' loaded');
+
+const map=L.map('map',{zoomControl:false,attributionControl:true}).setView([49.25,-123.1],7);
+const base=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:12,attribution:'© OpenStreetMap © CARTO · Radar & satellite: Environment Canada'}).addTo(map);
+base.once('tileload',()=>mark('base',true,'CARTO map tiles loading'));
+base.once('tileerror',()=>{ if(!res.base) mark('base',false,'CARTO map tiles were refused') });
+
+/* read a layer's time list from GetCapabilities: "start/end/PT6M" or a comma list */
+async function times(layer,keepMin){
+  const r=await fetch(`${GEO}?service=WMS&version=1.3.0&request=GetCapabilities&layer=${layer}&LAYERS_REFRESH_RATE=PT1M`);
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const x=new DOMParser().parseFromString(await r.text(),'text/xml');
+  const d=[...x.getElementsByTagName('Dimension')].find(n=>n.getAttribute('name')==='time');
+  if(!d) throw new Error('no time dimension');
+  const v=d.textContent.trim(); let out=[];
+  if(v.includes('/')){ const [a,b,p]=v.split('/'); const step=(+(p.match(/(\d+)M/)||[0,10])[1])*60000; for(let t=+new Date(b); t>=+new Date(a) && out.length<200; t-=step) out.unshift(new Date(t)) }
+  else out=v.split(',').map(s=>new Date(s));
+  const cut=Date.now()-keepMin*60000; return out.filter(t=>+t>=cut);
+}
+const wms=(layer,t,op)=>L.tileLayer.wms(GEO,{layers:layer,format:'image/png',transparent:true,version:'1.3.0',time:t.toISOString().replace('.000',''),tileSize:512,zoomOffset:-1,opacity:op,attribution:''});
+
+let rF=[],cF=[],frames=[],idx=0,timer=null,showR=true,showC=true;
+(async()=>{
+  try{ rF=await times(RAD,90); if(!rF.length) throw new Error('list empty'); mark('radT',true,rF.length+' frames, '+fmt(rF[0])+' – '+fmt(rF[rF.length-1])) }catch(e){ mark('radT',false,'Could not read radar times ('+e.message+')') }
+  try{ cF=await times(CLD,100); if(!cF.length) throw new Error('list empty'); mark('cldT',true,cF.length+' frames, '+fmt(cF[0])+' – '+fmt(cF[cF.length-1])) }catch(e){ mark('cldT',false,'Could not read cloud times ('+e.message+')') }
+  if(!rF.length){ mark('radI',false,'Skipped: no radar times'); mark('anim',false,'Skipped: no radar times'); if(!cF.length) mark('cldI',false,'Skipped: no cloud times'); return }
+  /* one frame per radar time, paired with the latest cloud picture at or before it */
+  frames=rF.map(t=>{ const c=cF.filter(x=>+x<=+t).pop()||cF[0]; return {t, r:wms(RAD,t,0), c:c?wms(CLD,c,0):null} });
+  let ready=0, need=frames.length*(cF.length?2:1), errs=0;
+  const done=()=>{ ready++; if(ready+errs===need){ errs>need*.2?mark('anim',false,errs+' of '+need+' frames failed to load'):mark('anim',true,frames.length+' frames loaded'+(errs?' ('+errs+' slow)':'')) } };
+  frames.forEach((f,i)=>{
+    if(f.c){ f.c.on('load',done); f.c.on('tileerror',()=>{ if(i===frames.length-1&&!res.cldI) mark('cldI',false,'Cloud image request was refused') }); f.c.once('tileload',()=>{ if(i===frames.length-1) mark('cldI',true,'GOES-West clouds drawing') }); f.c.addTo(map) }
+    f.r.on('load',done); f.r.on('tileerror',()=>{ if(i===frames.length-1&&!res.radI) mark('radI',false,'Radar image request was refused') }); f.r.once('tileload',()=>{ if(i===frames.length-1) mark('radI',true,'Radar drawing') }); f.r.addTo(map);
+  });
+  if(!cF.length) mark('cldI',false,'Skipped: no cloud times');
+  const s=document.getElementById('slide'); s.max=frames.length-1; s.value=frames.length-1;
+  show(frames.length-1); play(true);
+  s.oninput=()=>{ play(false); show(+s.value) };
+})();
+function show(i){ if(!frames.length) return; const p=frames[idx]; if(p){ p.r.setOpacity(0); p.c&&p.c.setOpacity(0) } idx=i; const f=frames[i]; f.r.setOpacity(showR?.85:0); f.c&&f.c.setOpacity(showC?.6:0); document.getElementById('tm').textContent=fmt(f.t); document.getElementById('slide').value=i }
+function play(on){ clearInterval(timer); timer=null; document.getElementById('play').textContent=on?'❚❚':'▶'; if(on) timer=setInterval(()=>show((idx+1)%frames.length),idx===frames.length-1?1400:450) }
+document.getElementById('play').onclick=()=>play(!timer);
+document.getElementById('tRad').onclick=e=>{ showR=!showR; e.target.classList.toggle('off',!showR); show(idx) };
+document.getElementById('tCld').onclick=e=>{ showC=!showC; e.target.classList.toggle('off',!showC); show(idx) };
+</script>
+</body>
+</html>
