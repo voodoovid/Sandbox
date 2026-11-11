@@ -74,7 +74,7 @@ main{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-i
 <header>
   <img src="apple-touch-icon.png" alt="">
   <h1>AC <i>Test</i></h1>
-  <span class="ver" data-hint="Version of this test page">v0.3</span>
+  <span class="ver" data-hint="Version of this test page">v0.4</span>
   <button class="ib" id="runBtn" data-hint="Run all tests again" aria-label="Run tests">↻</button>
   <button class="ib" id="setBtn" data-hint="Settings: add, copy or remove your Sensibo key" aria-label="Settings">⚙︎</button>
 </header>
@@ -171,14 +171,25 @@ main{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-i
 
     const relay = store.getRelay().replace(/\/+$/, '');
     if (!relay){ mark('relay', false, 'No relay address yet. Open Settings (⚙︎) and paste your workers.dev address.'); skipRest('cors', 'Needs the relay first'); summary(false, 'Add the relay address in Settings'); return; }
-    try {
-      const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 10000);
-      const h = await fetch(relay + '/', { signal: ctl.signal, cache: 'no-store' }); clearTimeout(to);
-      const txt = (await h.text()).trim();
-      if (!h.ok || !/^AC relay/.test(txt)){ mark('relay', false, `Address answered, but it is not the AC relay (HTTP ${h.status}).`); skipRest('cors', 'Relay not found'); summary(false, 'FAIL — wrong relay address'); return; }
-      mark('relay', true, txt);
-    } catch (e){
-      mark('relay', false, e.name === 'AbortError' ? 'Relay timed out.' : 'Could not reach the relay address. Check it for typos.'); skipRest('cors', 'Relay not reachable'); summary(false, 'FAIL — relay not reachable'); return;
+    {
+      let ok = false, detail = '';
+      try {
+        const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 10000);
+        const h = await fetch(relay + '/', { signal: ctl.signal, cache: 'no-store' }); clearTimeout(to);
+        const txt = (await h.text()).trim();
+        if (h.ok && /^AC relay/.test(txt)){ ok = true; detail = txt; }
+        else { mark('relay', false, `Address answered, but it is not the AC relay (HTTP ${h.status}).`); skipRest('cors', 'Relay not found'); summary(false, 'FAIL — wrong relay address'); return; }
+      } catch (e){
+        // Older relay replies without a CORS header, so the browser hides the text. A no-cors probe still proves it is reachable.
+        try {
+          const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 10000);
+          await fetch(relay + '/', { mode: 'no-cors', signal: ctl.signal, cache: 'no-store' }); clearTimeout(to);
+          ok = true; detail = 'Relay address answers (its version label is hidden by the browser)';
+        } catch {
+          mark('relay', false, 'Could not reach the relay address. Check it for typos, or turn off content blockers and VPN.'); skipRest('cors', 'Relay not reachable'); summary(false, 'FAIL — relay not reachable'); return;
+        }
+      }
+      if (ok) mark('relay', true, detail);
     }
 
     let res;

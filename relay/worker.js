@@ -1,7 +1,7 @@
-// AC relay v0.1 — forwards browser calls from the AC app to Sensibo.
+// AC relay v0.2 — forwards browser calls from the AC app to Sensibo.
 // Stores nothing. The API key arrives in the X-Api-Key header and is passed on to Sensibo only.
 const ALLOWED_ORIGIN = 'https://voodoovid.github.io';
-const VERSION = 'v0.1';
+const VERSION = 'v0.2';
 
 // Only these upstream services are reachable. Add FGLair and Airstage here later.
 const UPSTREAMS = {
@@ -34,7 +34,7 @@ export default {
 
     // Health check: open the worker address in a browser to confirm it is running.
     if (url.pathname === '/' && request.method === 'GET') {
-      return new Response(`AC relay ${VERSION} is running.`, { headers: { 'Content-Type': 'text/plain', 'Cache-Control': 'no-store' } });
+      return new Response(`AC relay ${VERSION} is running.`, { headers: { 'Content-Type': 'text/plain', 'Cache-Control': 'no-store', ...(origin === ALLOWED_ORIGIN ? cors(origin) : {}) } });
     }
 
     if (origin !== ALLOWED_ORIGIN) return json({ error: 'Origin not allowed' }, 403, null);
