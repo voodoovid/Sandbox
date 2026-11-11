@@ -74,7 +74,7 @@ main{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-i
 <header>
   <img src="apple-touch-icon.png" alt="">
   <h1>AC <i>Test</i></h1>
-  <span class="ver" data-hint="Version of this test page">v0.1</span>
+  <span class="ver" data-hint="Version of this test page">v0.2</span>
   <button class="ib" id="runBtn" data-hint="Run all tests again" aria-label="Run tests">↻</button>
   <button class="ib" id="setBtn" data-hint="Settings: add, copy or remove your Sensibo key" aria-label="Settings">⚙︎</button>
 </header>
@@ -172,8 +172,13 @@ main{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-i
       res = await fetch(url, { signal: ctl.signal, cache: 'no-store' });
       clearTimeout(to);
     } catch (e){
-      const why = e.name === 'AbortError' ? 'Timed out after 15 s.' : 'Blocked by the browser (CORS) or no internet. A relay would be needed.';
-      mark('cors', false, why); skipRest('auth', 'Could not reach Sensibo'); summary(false, 'FAIL — cannot reach Sensibo from a web page'); return;
+      if (e.name === 'AbortError'){ mark('cors', false, 'Timed out after 15 s.'); skipRest('auth', 'Could not reach Sensibo'); summary(false, 'FAIL — Sensibo timed out'); return; }
+      // Tell CORS apart from no internet: an opaque (no-cors) request succeeds if Sensibo is reachable.
+      let reachable = false;
+      try { await fetch(`${API}/users/me/pods?apiKey=x`, { mode: 'no-cors', cache: 'no-store' }); reachable = true; } catch {}
+      if (reachable){ mark('cors', false, 'Sensibo is reachable, but it blocks web pages from reading its replies (CORS). A relay is needed.'); skipRest('auth', 'Blocked by Sensibo (CORS)'); summary(false, 'FAIL — Sensibo blocks web pages (CORS)'); }
+      else { mark('cors', false, 'Could not reach Sensibo at all — check internet or content blockers, then run again.'); skipRest('auth', 'Could not reach Sensibo'); summary(false, 'FAIL — Sensibo not reachable'); }
+      return;
     }
     const ms = Math.round(performance.now() - t0);
     mark('cors', true, `Reached Sensibo in ${ms} ms — no server needed`);
