@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#07101f">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://home.sensibo.com" crossorigin>
+<title>AC Test</title>
+<style>
+:root{--y:#f4b942;--ok:#3ecf8e;--bad:#ff5d6c;--wait:#8aa0bf;--card:rgba(10,18,34,.92);--line:rgba(255,255,255,.16)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:#07101f;color:#fff;font:600 15px/1.3 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif}
+body{padding:calc(env(safe-area-inset-top) + 12px) calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 16px) calc(env(safe-area-inset-left) + 16px)}
+header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+header img{width:34px;height:34px;border-radius:9px}
+h1{font-size:24px;font-weight:800;letter-spacing:-.2px}
+h1 i{font-style:normal;color:var(--y)}
+.ver{margin-left:auto;font-size:13px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid var(--line);white-space:nowrap}
+.ib{flex:none;width:40px;height:40px;border-radius:12px;border:1.5px solid rgba(255,255,255,.32);background:rgba(255,255,255,.08);color:#fff;font-size:19px;font-weight:800;cursor:pointer;display:grid;place-items:center}
+.ib:active{transform:scale(.96)}
+main{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
+@media (max-width:900px){main{grid-template-columns:1fr}}
+.loc{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.loc.ph{opacity:.62}
+.lh{display:flex;align-items:center;gap:10px}
+.lh h2{font-size:20px;font-weight:800}
+.svc{font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#bfe3ff;padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.06)}
+.lh .ib{margin-left:auto;width:36px;height:36px;font-size:16px}
+.sec{font-size:11px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:#bfe3ff;margin:6px 4px 0}
+.t{display:flex;gap:10px;align-items:flex-start;padding:7px 10px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
+.t .dot{flex:none;width:40px;height:22px;border-radius:999px;font-size:10.5px;font-weight:800;display:grid;place-items:center;background:var(--wait);color:#07101f}
+.t.pass .dot{background:var(--ok)}.t.fail .dot{background:var(--bad);color:#fff}
+.t b{display:block;font-size:14px}
+.t span{display:block;font-size:12px;font-weight:600;color:#c9dcf5;margin-top:2px;word-break:break-word}
+.sum{margin-top:2px;padding:10px;border-radius:14px;text-align:center;font-weight:800;font-size:16px;background:rgba(255,255,255,.08)}
+.sum.pass{background:rgba(62,207,142,.2);color:var(--ok)}.sum.fail{background:rgba(255,93,108,.2);color:var(--bad)}
+.unit{padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
+.unit .row{display:flex;align-items:baseline;gap:8px}
+.unit .nm{font-size:16px;font-weight:800}
+.unit .st{margin-left:auto;font-size:12px;font-weight:800;padding:2px 9px;border-radius:999px}
+.st.on{background:rgba(62,207,142,.2);color:var(--ok)}.st.off{background:rgba(255,255,255,.1);color:#c9dcf5}.st.dead{background:rgba(255,93,108,.2);color:var(--bad)}
+.unit .rd{display:flex;gap:16px;margin-top:6px;flex-wrap:wrap}
+.unit .rd div{font-size:12px;color:#bfe3ff}
+.unit .rd b{display:block;font-size:20px;color:#fff;font-variant-numeric:tabular-nums}
+.unit .rd b.y{color:var(--y)}
+.empty{padding:16px;border-radius:14px;border:1.5px dashed rgba(255,255,255,.25);text-align:center;color:#c9dcf5;font-size:13px}
+.empty b{display:block;color:#fff;font-size:15px;margin-bottom:4px}
+/* hover hints */
+[data-hint]{position:relative}
+.hint{position:fixed;z-index:999;max-width:240px;padding:6px 10px;border-radius:10px;background:#1a2a44;border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;font-weight:600;pointer-events:none;opacity:0;transition:opacity .12s;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+.hint.show{opacity:1}
+/* floating pop-up */
+.ov{position:fixed;inset:0;z-index:900;background:rgba(3,8,18,.6);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 16px)}
+.ov.open{display:flex}
+.pop{width:min(460px,100%);max-height:100%;overflow:auto;background:#0d1a30;border:1px solid rgba(255,255,255,.22);border-radius:22px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.55)}
+.ph2{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.ph2 h3{font-size:19px;font-weight:800}
+.ph2 .ib{margin-left:auto;width:36px;height:36px;font-size:16px}
+.pop label{display:block;font-size:12px;color:#bfe3ff;margin:6px 2px}
+.pop input{width:100%;padding:11px 12px;border-radius:12px;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;font:600 14px ui-monospace,SFMono-Regular,Menlo,monospace}
+.pop input:focus{outline:none;border-color:var(--y)}
+.btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.b{padding:9px 14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font:800 14px -apple-system,system-ui,sans-serif;cursor:pointer}
+.b.pri{background:var(--y);border-color:var(--y);color:#07101f}
+.b.dng{border-color:rgba(255,93,108,.6);color:var(--bad)}
+.note{font-size:12px;color:#c9dcf5;margin-top:10px;line-height:1.45}
+.msg{font-size:13px;margin-top:8px;min-height:18px}
+</style>
+</head>
+<body>
+<header>
+  <img src="apple-touch-icon.png" alt="">
+  <h1>AC <i>Test</i></h1>
+  <span class="ver" data-hint="Version of this test page">v0.1</span>
+  <button class="ib" id="runBtn" data-hint="Run all tests again" aria-label="Run tests">↻</button>
+  <button class="ib" id="setBtn" data-hint="Settings: add, copy or remove your Sensibo key" aria-label="Settings">⚙︎</button>
+</header>
+
+<main>
+  <section class="loc" id="cabana">
+    <div class="lh"><h2>Cabana</h2><span class="svc">Sensibo</span></div>
+    <div class="sec">Connection tests</div>
+    <div id="cTests"></div>
+    <div class="sum" id="cSum">Waiting…</div>
+    <div class="sec">Units</div>
+    <div id="cUnits"><div class="empty">Units appear here once the tests pass.</div></div>
+  </section>
+
+  <section class="loc ph">
+    <div class="lh"><h2>Hawaii</h2><span class="svc">FGLair</span></div>
+    <div class="empty"><b>Placeholder</b>Fujitsu FGLair (US) — not connected yet.</div>
+  </section>
+
+  <section class="loc ph">
+    <div class="lh"><h2>Shuswap</h2><span class="svc">Airstage</span></div>
+    <div class="empty"><b>Placeholder</b>Fujitsu Airstage (Canada) — not connected yet.</div>
+  </section>
+</main>
+
+<div class="ov" id="ov">
+  <div class="pop" role="dialog" aria-modal="true" aria-labelledby="popT">
+    <div class="ph2"><h3 id="popT">Settings</h3><button class="ib" id="closeBtn" data-hint="Close settings" aria-label="Close">✕</button></div>
+    <label for="key">Cabana · Sensibo API key</label>
+    <input id="key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste key from home.sensibo.com/me/api">
+    <div class="btns">
+      <button class="b pri" id="saveBtn" data-hint="Save the key on this device and run the tests">Save &amp; test</button>
+      <button class="b" id="showBtn" data-hint="Show or hide the key">Show</button>
+      <button class="b" id="copyBtn" data-hint="Copy the saved key to the clipboard">Copy key</button>
+      <button class="b dng" id="delBtn" data-hint="Remove the key from this device (asks first)">Remove key</button>
+    </div>
+    <div class="msg" id="msg"></div>
+    <div class="note">The key is stored only in this browser on this device. It is never in the page code or on GitHub, and is sent only to Sensibo.</div>
+  </div>
+</div>
+
+<div class="hint" id="hint"></div>
+
+<script>
+(() => {
+  const API = 'https://home.sensibo.com/api/v2';
+  const KEY_STORE = 'acTest.sensiboKey';
+  const $ = id => document.getElementById(id);
+  const store = {
+    get(){ try { return localStorage.getItem(KEY_STORE) || ''; } catch { return ''; } },
+    set(v){ try { localStorage.setItem(KEY_STORE, v); return true; } catch { return false; } },
+    del(){ try { localStorage.removeItem(KEY_STORE); } catch {} }
+  };
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  /* ---------- tests ---------- */
+  const T = [
+    ['key',  'Key saved on this device'],
+    ['cors', 'Browser can reach Sensibo directly'],
+    ['auth', 'Key accepted'],
+    ['pods', 'Units found'],
+    ['live', 'Units online'],
+    ['data', 'Readings received']
+  ];
+  function resetTests(){
+    $('cTests').innerHTML = T.map(([id, name]) =>
+      `<div class="t" id="t-${id}"><div class="dot">…</div><div><b>${name}</b><span>Waiting</span></div></div>`).join('');
+    $('cTests').style.display = 'flex'; $('cTests').style.flexDirection = 'column'; $('cTests').style.gap = '6px';
+    const s = $('cSum'); s.className = 'sum'; s.textContent = 'Testing…';
+  }
+  function mark(id, ok, detail){
+    const el = $('t-' + id); if (!el) return;
+    el.className = 't ' + (ok === null ? '' : ok ? 'pass' : 'fail');
+    el.querySelector('.dot').textContent = ok === null ? 'SKIP' : ok ? 'PASS' : 'FAIL';
+    el.querySelector('span').textContent = detail;
+  }
+  function skipRest(from, why){
+    let on = false;
+    for (const [id] of T){ if (id === from) on = true; if (on) mark(id, null, why); }
+  }
+  function summary(ok, text){ const s = $('cSum'); s.className = 'sum ' + (ok ? 'pass' : 'fail'); s.textContent = text; }
+
+  async function run(){
+    resetTests();
+    $('cUnits').innerHTML = '<div class="empty">Units appear here once the tests pass.</div>';
+    const key = store.get();
+    if (!key){ mark('key', false, 'No key yet. Open Settings (⚙︎) and paste your Sensibo key.'); skipRest('cors', 'Needs a key first'); summary(false, 'Add your key in Settings'); return; }
+    mark('key', true, 'Stored in this browser only (…' + esc(key.slice(-4)) + ')');
+
+    const url = `${API}/users/me/pods?fields=id,room,acState,measurements,connectionStatus&apiKey=${encodeURIComponent(key)}`;
+    let res;
+    const t0 = performance.now();
+    try {
+      const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 15000);
+      res = await fetch(url, { signal: ctl.signal, cache: 'no-store' });
+      clearTimeout(to);
+    } catch (e){
+      const why = e.name === 'AbortError' ? 'Timed out after 15 s.' : 'Blocked by the browser (CORS) or no internet. A relay would be needed.';
+      mark('cors', false, why); skipRest('auth', 'Could not reach Sensibo'); summary(false, 'FAIL — cannot reach Sensibo from a web page'); return;
+    }
+    const ms = Math.round(performance.now() - t0);
+    mark('cors', true, `Reached Sensibo in ${ms} ms — no server needed`);
+
+    if (res.status === 401 || res.status === 403){ mark('auth', false, `Sensibo rejected the key (HTTP ${res.status}). Check it in Settings.`); skipRest('pods', 'Key not accepted'); summary(false, 'FAIL — key not accepted'); return; }
+    if (res.status === 429){ mark('auth', false, 'Too many requests (HTTP 429). Wait a minute and run again.'); skipRest('pods', 'Rate limited'); summary(false, 'FAIL — rate limited'); return; }
+    let body;
+    try { body = await res.json(); } catch { mark('auth', false, `Unexpected reply (HTTP ${res.status}).`); skipRest('pods', 'Bad reply'); summary(false, 'FAIL — unexpected reply'); return; }
+    if (!res.ok || body.status !== 'success'){ mark('auth', false, `HTTP ${res.status}: ${esc(body.reason || body.message || 'error')}`); skipRest('pods', 'Request failed'); summary(false, 'FAIL — request failed'); return; }
+    mark('auth', true, 'Sensibo accepted the key');
+
+    const pods = Array.isArray(body.result) ? body.result : [];
+    if (!pods.length){ mark('pods', false, 'The account has no units.'); skipRest('live', 'No units'); summary(false, 'FAIL — no units on this account'); return; }
+    mark('pods', true, `${pods.length} unit${pods.length > 1 ? 's' : ''}: ${pods.map(p => esc(p.room?.name || p.id)).join(', ')}`);
+
+    const alive = pods.filter(p => p.connectionStatus?.isAlive);
+    mark('live', alive.length === pods.length, `${alive.length} of ${pods.length} online`);
+
+    const withData = pods.filter(p => typeof p.measurements?.temperature === 'number');
+    mark('data', withData.length > 0, withData.length ? `Temperature and state read from ${withData.length} unit${withData.length > 1 ? 's' : ''}` : 'No readings returned');
+
+    const allOk = alive.length === pods.length && withData.length === pods.length;
+    summary(allOk, allOk ? 'PASS — Cabana works fully in the browser' : 'PARTIAL — connection works, see red items');
+    renderUnits(pods);
+  }
+
+  function renderUnits(pods){
+    $('cUnits').innerHTML = pods.map(p => {
+      const a = p.acState || {}, m = p.measurements || {}, live = p.connectionStatus?.isAlive;
+      const unit = a.temperatureUnit || 'C';
+      const st = !live ? '<span class="st dead">Offline</span>' : a.on ? '<span class="st on">On</span>' : '<span class="st off">Off</span>';
+      const tgt = a.targetTemperature != null ? `${esc(a.targetTemperature)}°${esc(unit)}` : '—';
+      const room = typeof m.temperature === 'number' ? `${m.temperature.toFixed(1)}°C` : '—';
+      const hum = typeof m.humidity === 'number' ? `${Math.round(m.humidity)}%` : '—';
+      return `<div class="unit"><div class="row"><span class="nm">${esc(p.room?.name || 'Unit')}</span>${st}</div>
+        <div class="rd"><div><b>${room}</b>Room</div><div><b>${hum}</b>Humidity</div><div><b class="y">${tgt}</b>Target</div><div><b>${esc(a.mode || '—')}</b>Mode</div><div><b>${esc(a.fanLevel || '—')}</b>Fan</div></div></div>`;
+    }).join('');
+  }
+
+  /* ---------- settings pop-up ---------- */
+  const ov = $('ov'), keyIn = $('key'), msg = $('msg');
+  function openSet(){ keyIn.value = store.get(); keyIn.type = 'password'; $('showBtn').textContent = 'Show'; msg.textContent = ''; ov.classList.add('open'); setTimeout(() => keyIn.focus(), 50); }
+  function closeSet(){ ov.classList.remove('open'); }
+  $('setBtn').onclick = openSet;
+  $('closeBtn').onclick = closeSet;
+  ov.addEventListener('click', e => { if (e.target === ov) closeSet(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSet(); });
+  $('showBtn').onclick = () => { const h = keyIn.type === 'password'; keyIn.type = h ? 'text' : 'password'; $('showBtn').textContent = h ? 'Hide' : 'Show'; };
+  $('saveBtn').onclick = () => {
+    const v = keyIn.value.trim();
+    if (!v){ msg.style.color = 'var(--bad)'; msg.textContent = 'Paste a key first.'; return; }
+    if (!store.set(v)){ msg.style.color = 'var(--bad)'; msg.textContent = 'This browser blocked saving (private mode?).'; return; }
+    closeSet(); run();
+  };
+  $('copyBtn').onclick = async () => {
+    const v = store.get();
+    if (!v){ msg.style.color = 'var(--bad)'; msg.textContent = 'No saved key to copy.'; return; }
+    try { await navigator.clipboard.writeText(v); msg.style.color = 'var(--ok)'; msg.textContent = 'Key copied.'; }
+    catch { keyIn.type = 'text'; keyIn.value = v; keyIn.select(); msg.style.color = 'var(--y)'; msg.textContent = 'Copy blocked — key selected, copy it manually.'; }
+  };
+  $('delBtn').onclick = () => {
+    if (!store.get()){ msg.style.color = 'var(--bad)'; msg.textContent = 'No saved key to remove.'; return; }
+    if (!confirm('Remove the Cabana Sensibo key from this device?')) return;
+    store.del(); keyIn.value = ''; msg.style.color = 'var(--ok)'; msg.textContent = 'Key removed.'; run();
+  };
+  $('runBtn').onclick = run;
+
+  /* ---------- hover hints ---------- */
+  const hint = $('hint');
+  document.addEventListener('mouseover', e => {
+    const el = e.target.closest('[data-hint]'); if (!el){ hint.classList.remove('show'); return; }
+    hint.textContent = el.dataset.hint;
+    const r = el.getBoundingClientRect();
+    hint.classList.add('show');
+    const w = hint.offsetWidth, h = hint.offsetHeight;
+    let x = Math.min(Math.max(8, r.left + r.width / 2 - w / 2), innerWidth - w - 8);
+    let y = r.bottom + 8; if (y + h > innerHeight - 8) y = r.top - h - 8;
+    hint.style.left = x + 'px'; hint.style.top = y + 'px';
+  });
+  document.addEventListener('mouseout', e => { if (!e.relatedTarget || !e.relatedTarget.closest?.('[data-hint]')) hint.classList.remove('show'); });
+
+  run(); // start immediately — no waiting
+})();
+</script>
+</body>
+</html>
