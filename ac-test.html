@@ -74,7 +74,7 @@ main{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-i
 <header>
   <img src="apple-touch-icon.png" alt="">
   <h1>AC <i>Test</i></h1>
-  <span class="ver" data-hint="Version of this test page">v0.2</span>
+  <span class="ver" data-hint="Version of this test page">v0.3</span>
   <button class="ib" id="runBtn" data-hint="Run all tests again" aria-label="Run tests">↻</button>
   <button class="ib" id="setBtn" data-hint="Settings: add, copy or remove your Sensibo key" aria-label="Settings">⚙︎</button>
 </header>
@@ -103,6 +103,8 @@ main{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-i
 <div class="ov" id="ov">
   <div class="pop" role="dialog" aria-modal="true" aria-labelledby="popT">
     <div class="ph2"><h3 id="popT">Settings</h3><button class="ib" id="closeBtn" data-hint="Close settings" aria-label="Close">✕</button></div>
+    <label for="relay">Relay address (workers.dev)</label>
+    <input id="relay" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://ac-relay.yourname.workers.dev">
     <label for="key">Cabana · Sensibo API key</label>
     <input id="key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste key from home.sensibo.com/me/api">
     <div class="btns">
@@ -112,7 +114,7 @@ main{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-i
       <button class="b dng" id="delBtn" data-hint="Remove the key from this device (asks first)">Remove key</button>
     </div>
     <div class="msg" id="msg"></div>
-    <div class="note">The key is stored only in this browser on this device. It is never in the page code or on GitHub, and is sent only to Sensibo.</div>
+    <div class="note">The key and relay address are stored only in this browser on this device, never in the page code or on GitHub. The key passes through your relay to Sensibo and is not stored there.</div>
   </div>
 </div>
 
@@ -120,20 +122,23 @@ main{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-i
 
 <script>
 (() => {
-  const API = 'https://home.sensibo.com/api/v2';
   const KEY_STORE = 'acTest.sensiboKey';
+  const RELAY_STORE = 'acTest.relayUrl';
   const $ = id => document.getElementById(id);
   const store = {
     get(){ try { return localStorage.getItem(KEY_STORE) || ''; } catch { return ''; } },
     set(v){ try { localStorage.setItem(KEY_STORE, v); return true; } catch { return false; } },
-    del(){ try { localStorage.removeItem(KEY_STORE); } catch {} }
+    del(){ try { localStorage.removeItem(KEY_STORE); } catch {} },
+    getRelay(){ try { return localStorage.getItem(RELAY_STORE) || ''; } catch { return ''; } },
+    setRelay(v){ try { localStorage.setItem(RELAY_STORE, v); return true; } catch { return false; } }
   };
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
   /* ---------- tests ---------- */
   const T = [
     ['key',  'Key saved on this device'],
-    ['cors', 'Browser can reach Sensibo directly'],
+    ['relay','Relay is running'],
+    ['cors', 'Relay can reach Sensibo'],
     ['auth', 'Key accepted'],
     ['pods', 'Units found'],
     ['live', 'Units online'],
@@ -164,25 +169,31 @@ main{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-i
     if (!key){ mark('key', false, 'No key yet. Open Settings (⚙︎) and paste your Sensibo key.'); skipRest('cors', 'Needs a key first'); summary(false, 'Add your key in Settings'); return; }
     mark('key', true, 'Stored in this browser only (…' + esc(key.slice(-4)) + ')');
 
-    const url = `${API}/users/me/pods?fields=id,room,acState,measurements,connectionStatus&apiKey=${encodeURIComponent(key)}`;
+    const relay = store.getRelay().replace(/\/+$/, '');
+    if (!relay){ mark('relay', false, 'No relay address yet. Open Settings (⚙︎) and paste your workers.dev address.'); skipRest('cors', 'Needs the relay first'); summary(false, 'Add the relay address in Settings'); return; }
+    try {
+      const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 10000);
+      const h = await fetch(relay + '/', { signal: ctl.signal, cache: 'no-store' }); clearTimeout(to);
+      const txt = (await h.text()).trim();
+      if (!h.ok || !/^AC relay/.test(txt)){ mark('relay', false, `Address answered, but it is not the AC relay (HTTP ${h.status}).`); skipRest('cors', 'Relay not found'); summary(false, 'FAIL — wrong relay address'); return; }
+      mark('relay', true, txt);
+    } catch (e){
+      mark('relay', false, e.name === 'AbortError' ? 'Relay timed out.' : 'Could not reach the relay address. Check it for typos.'); skipRest('cors', 'Relay not reachable'); summary(false, 'FAIL — relay not reachable'); return;
+    }
+
     let res;
     const t0 = performance.now();
     try {
       const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 15000);
-      res = await fetch(url, { signal: ctl.signal, cache: 'no-store' });
+      res = await fetch(`${relay}/sensibo/users/me/pods?fields=id,room,acState,measurements,connectionStatus`, { headers: { 'X-Api-Key': key }, signal: ctl.signal, cache: 'no-store' });
       clearTimeout(to);
     } catch (e){
-      if (e.name === 'AbortError'){ mark('cors', false, 'Timed out after 15 s.'); skipRest('auth', 'Could not reach Sensibo'); summary(false, 'FAIL — Sensibo timed out'); return; }
-      // Tell CORS apart from no internet: an opaque (no-cors) request succeeds if Sensibo is reachable.
-      let reachable = false;
-      try { await fetch(`${API}/users/me/pods?apiKey=x`, { mode: 'no-cors', cache: 'no-store' }); reachable = true; } catch {}
-      if (reachable){ mark('cors', false, 'Sensibo is reachable, but it blocks web pages from reading its replies (CORS). A relay is needed.'); skipRest('auth', 'Blocked by Sensibo (CORS)'); summary(false, 'FAIL — Sensibo blocks web pages (CORS)'); }
-      else { mark('cors', false, 'Could not reach Sensibo at all — check internet or content blockers, then run again.'); skipRest('auth', 'Could not reach Sensibo'); summary(false, 'FAIL — Sensibo not reachable'); }
-      return;
+      mark('cors', false, e.name === 'AbortError' ? 'Timed out after 15 s.' : 'Relay call failed.'); skipRest('auth', 'Could not reach Sensibo'); summary(false, 'FAIL — relay call failed'); return;
     }
     const ms = Math.round(performance.now() - t0);
-    mark('cors', true, `Reached Sensibo in ${ms} ms — no server needed`);
+    mark('cors', true, `Sensibo answered through the relay in ${ms} ms`);
 
+    if (res.status === 403){ let b2 = null; try { b2 = await res.clone().json(); } catch {} if (b2 && /Origin|Path/.test(b2.error || '')){ mark('auth', false, 'Relay refused: ' + esc(b2.error)); skipRest('pods', 'Relay refused'); summary(false, 'FAIL — relay refused the request'); return; } }
     if (res.status === 401 || res.status === 403){ mark('auth', false, `Sensibo rejected the key (HTTP ${res.status}). Check it in Settings.`); skipRest('pods', 'Key not accepted'); summary(false, 'FAIL — key not accepted'); return; }
     if (res.status === 429){ mark('auth', false, 'Too many requests (HTTP 429). Wait a minute and run again.'); skipRest('pods', 'Rate limited'); summary(false, 'FAIL — rate limited'); return; }
     let body;
@@ -201,7 +212,7 @@ main{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-i
     mark('data', withData.length > 0, withData.length ? `Temperature and state read from ${withData.length} unit${withData.length > 1 ? 's' : ''}` : 'No readings returned');
 
     const allOk = alive.length === pods.length && withData.length === pods.length;
-    summary(allOk, allOk ? 'PASS — Cabana works fully in the browser' : 'PARTIAL — connection works, see red items');
+    summary(allOk, allOk ? 'PASS — Cabana works through the relay' : 'PARTIAL — connection works, see red items');
     renderUnits(pods);
   }
 
@@ -220,7 +231,7 @@ main{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-i
 
   /* ---------- settings pop-up ---------- */
   const ov = $('ov'), keyIn = $('key'), msg = $('msg');
-  function openSet(){ keyIn.value = store.get(); keyIn.type = 'password'; $('showBtn').textContent = 'Show'; msg.textContent = ''; ov.classList.add('open'); setTimeout(() => keyIn.focus(), 50); }
+  function openSet(){ keyIn.value = store.get(); $('relay').value = store.getRelay(); keyIn.type = 'password'; $('showBtn').textContent = 'Show'; msg.textContent = ''; ov.classList.add('open'); setTimeout(() => keyIn.focus(), 50); }
   function closeSet(){ ov.classList.remove('open'); }
   $('setBtn').onclick = openSet;
   $('closeBtn').onclick = closeSet;
@@ -229,7 +240,10 @@ main{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-i
   $('showBtn').onclick = () => { const h = keyIn.type === 'password'; keyIn.type = h ? 'text' : 'password'; $('showBtn').textContent = h ? 'Hide' : 'Show'; };
   $('saveBtn').onclick = () => {
     const v = keyIn.value.trim();
+    let rl = $('relay').value.trim().replace(/\/+$/, '');
+    if (rl && !/^https:\/\//.test(rl)) rl = 'https://' + rl.replace(/^http:\/\//, '');
     if (!v){ msg.style.color = 'var(--bad)'; msg.textContent = 'Paste a key first.'; return; }
+    if (rl && !store.setRelay(rl)){ msg.style.color = 'var(--bad)'; msg.textContent = 'This browser blocked saving (private mode?).'; return; }
     if (!store.set(v)){ msg.style.color = 'var(--bad)'; msg.textContent = 'This browser blocked saving (private mode?).'; return; }
     closeSet(); run();
   };
