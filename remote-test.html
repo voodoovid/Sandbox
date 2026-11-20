@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#07101f">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://api.github.com" crossorigin>
+<title>Remote Test</title>
+<style>
+:root{--y:#f4b942;--ok:#3ecf8e;--bad:#ff5d6c;--wait:#8aa0bf;--card:rgba(10,18,34,.92);--line:rgba(255,255,255,.16)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:#07101f;color:#fff;font:600 15px/1.3 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif}
+body{padding:calc(env(safe-area-inset-top) + 12px) calc(env(safe-area-inset-right) + 16px) calc(env(safe-area-inset-bottom) + 16px) calc(env(safe-area-inset-left) + 16px)}
+header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+header img{width:34px;height:34px;border-radius:9px}
+h1{font-size:24px;font-weight:800;letter-spacing:-.2px}
+h1 i{font-style:normal;color:var(--y)}
+.ver{margin-left:auto;font-size:13px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid var(--line);white-space:nowrap}
+.ib{flex:none;width:40px;height:40px;border-radius:12px;border:1.5px solid rgba(255,255,255,.32);background:rgba(255,255,255,.08);color:#fff;font-size:19px;font-weight:800;cursor:pointer;display:grid;place-items:center}
+.ib:active{transform:scale(.96)}
+main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start}
+@media (max-width:900px){main{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.lh{display:flex;align-items:center;gap:10px}
+.lh h2{font-size:20px;font-weight:800}
+.tag{font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#bfe3ff;padding:3px 9px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.06)}
+.sec{font-size:11px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:#bfe3ff;margin:6px 4px 0}
+#tests{display:flex;flex-direction:column;gap:6px}
+.t{display:flex;gap:10px;align-items:flex-start;padding:7px 10px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
+.t .dot{flex:none;width:40px;height:22px;border-radius:999px;font-size:10.5px;font-weight:800;display:grid;place-items:center;background:var(--wait);color:#07101f}
+.t.pass .dot{background:var(--ok)}.t.fail .dot{background:var(--bad);color:#fff}.t.info .dot{background:var(--y)}
+.t b{display:block;font-size:14px}
+.t span{display:block;font-size:12px;font-weight:600;color:#c9dcf5;margin-top:2px;word-break:break-word}
+.sum{margin-top:2px;padding:10px;border-radius:14px;text-align:center;font-weight:800;font-size:16px;background:rgba(255,255,255,.08)}
+.sum.pass{background:rgba(62,207,142,.2);color:var(--ok)}.sum.fail{background:rgba(255,93,108,.2);color:var(--bad)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line);font-size:13px}
+.kv dt{color:#bfe3ff}
+.kv dd{font-variant-numeric:tabular-nums;word-break:break-word}
+.kv dd.y{color:var(--y)}
+.empty{padding:16px;border-radius:14px;border:1.5px dashed rgba(255,255,255,.25);text-align:center;color:#c9dcf5;font-size:13px}
+.steps{padding:4px 4px 2px 22px;font-size:13px;line-height:1.5;color:#dce9fa}
+.steps li{margin-bottom:6px}
+.steps b{color:#fff}
+/* hover hints */
+.hint{position:fixed;z-index:999;max-width:240px;padding:6px 10px;border-radius:10px;background:#1a2a44;border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;font-weight:600;pointer-events:none;opacity:0;transition:opacity .12s;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+.hint.show{opacity:1}
+/* floating pop-up */
+.ov{position:fixed;inset:0;z-index:900;background:rgba(3,8,18,.6);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 16px)}
+.ov.open{display:flex}
+.pop{width:min(460px,100%);max-height:100%;overflow:auto;background:#0d1a30;border:1px solid rgba(255,255,255,.22);border-radius:22px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.55)}
+.ph2{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.ph2 h3{font-size:19px;font-weight:800}
+.ph2 .ib{margin-left:auto;width:36px;height:36px;font-size:16px}
+.pop label{display:block;font-size:12px;color:#bfe3ff;margin:6px 2px}
+.pop input{width:100%;padding:11px 12px;border-radius:12px;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;font:600 14px ui-monospace,SFMono-Regular,Menlo,monospace}
+.pop input:focus{outline:none;border-color:var(--y)}
+.btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.b{padding:9px 14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font:800 14px -apple-system,system-ui,sans-serif;cursor:pointer}
+.b.pri{background:var(--y);border-color:var(--y);color:#07101f}
+.b.dng{border-color:rgba(255,93,108,.6);color:var(--bad)}
+.note{font-size:12px;color:#c9dcf5;margin-top:10px;line-height:1.45}
+.msg{font-size:13px;margin-top:8px;min-height:18px}
+</style>
+</head>
+<body>
+<header>
+  <img src="apple-touch-icon.png" alt="">
+  <h1>Remote <i>Test</i></h1>
+  <span class="ver" data-hint="Version of this test page">v0.1</span>
+  <button class="ib" id="runBtn" data-hint="Run all tests again" aria-label="Run tests">↻</button>
+  <button class="ib" id="setBtn" data-hint="Settings: add, copy or remove your GitHub token" aria-label="Settings">⚙︎</button>
+</header>
+
+<main>
+  <section class="card">
+    <div class="lh"><h2>Station data online</h2><span class="tag">GitHub</span></div>
+    <div class="sec">Connection tests</div>
+    <div id="tests"></div>
+    <div class="sum" id="sum">Waiting…</div>
+    <div class="sec">Data file</div>
+    <div id="file"><div class="empty">The file's details appear here once it has been read.</div></div>
+  </section>
+
+  <section class="card">
+    <div class="lh"><h2>Set up the token</h2></div>
+    <ol class="steps">
+      <li>On github.com go to <b>Settings › Developer settings › Personal access tokens › Fine-grained tokens</b> and choose <b>Generate new token</b>.</li>
+      <li>Under <b>Repository access</b> pick <b>Only select repositories</b> and choose <b>Logs</b>.</li>
+      <li>Under <b>Repository permissions</b> set <b>Contents</b> to <b>Read-only</b>. Leave everything else as it is.</li>
+      <li>Generate it, copy it, then tap <b>⚙︎</b> here and paste it.</li>
+    </ol>
+    <div class="note">Do this once on each device (iPhone and iPad). The token can only read Logs, so even if it leaked it couldn't change anything.</div>
+  </section>
+</main>
+
+<div class="ov" id="ov">
+  <div class="pop" role="dialog" aria-modal="true" aria-labelledby="popT">
+    <div class="ph2"><h3 id="popT">Settings</h3><button class="ib" id="closeBtn" data-hint="Close settings" aria-label="Close">✕</button></div>
+    <label for="tok">GitHub token (read-only, Logs only)</label>
+    <input id="tok" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…">
+    <div class="btns">
+      <button class="b pri" id="saveBtn" data-hint="Save the token on this device and run the tests">Save &amp; test</button>
+      <button class="b" id="showBtn" data-hint="Show or hide the token">Show</button>
+      <button class="b" id="copyBtn" data-hint="Copy the saved token to the clipboard">Copy token</button>
+      <button class="b dng" id="delBtn" data-hint="Remove the token from this device (asks first)">Remove token</button>
+    </div>
+    <div class="msg" id="msg"></div>
+    <div class="note">The token is stored only in this browser on this device, never in the page code or on GitHub.</div>
+  </div>
+</div>
+
+<div class="hint" id="hint"></div>
+
+<script>
+(() => {
+  const VERSION = 'v0.1';
+  const OWNER = 'voodoovid', REPO = 'logs', BRANCH = 'live', FILE = 'test.json';
+  const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
+  const FRESH_MIN = 20; // the Mac mini pushes every 15 min, so older than 20 min means a missed push
+  const STORE = 'remoteTest.githubToken';
+  const $ = id => document.getElementById(id);
+  const store = {
+    get(){ try { return localStorage.getItem(STORE) || ''; } catch { return ''; } },
+    set(v){ try { localStorage.setItem(STORE, v); return true; } catch { return false; } },
+    del(){ try { localStorage.removeItem(STORE); } catch {} }
+  };
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  const T = [
+    ['tok',   'Token saved on this device'],
+    ['gh',    'GitHub accepts the token'],
+    ['repo',  'Token can see Logs'],
+    ['branch','Data branch found'],
+    ['read',  'Data file read'],
+    ['fresh', 'Data is up to date']
+  ];
+  function reset(){
+    $('tests').innerHTML = T.map(([id, n]) => `<div class="t" id="t-${id}"><div class="dot">…</div><div><b>${n}</b><span>Waiting</span></div></div>`).join('');
+    const s = $('sum'); s.className = 'sum'; s.textContent = 'Testing…';
+  }
+  function mark(id, st, detail){
+    const el = $('t-' + id); if (!el) return;
+    const map = { pass:['pass','PASS'], fail:['fail','FAIL'], info:['info','INFO'], skip:['','SKIP'] };
+    el.className = 't ' + map[st][0];
+    el.querySelector('.dot').textContent = map[st][1];
+    el.querySelector('span').textContent = detail;
+  }
+  function skipFrom(from, why){ let on = false; for (const [id] of T){ if (id === from) on = true; if (on) mark(id, 'skip', why); } }
+  function summary(ok, text){ const s = $('sum'); s.className = 'sum ' + (ok ? 'pass' : 'fail'); s.textContent = text; }
+
+  async function gh(path, token, raw){
+    const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 15000);
+    try {
+      return await fetch(API + path, {
+        headers: { 'Authorization': 'Bearer ' + token, 'Accept': raw ? 'application/vnd.github.raw+json' : 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' },
+        cache: 'no-store', signal: ctl.signal
+      });
+    } finally { clearTimeout(to); }
+  }
+  const ago = ms => { const m = Math.round(ms / 60000); return m < 1 ? 'under a minute ago' : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.floor(m/60)} h ${m%60} min ago` : `${Math.floor(m/1440)} days ago`; };
+
+  async function run(){
+    reset();
+    $('file').innerHTML = '<div class="empty">The file\'s details appear here once it has been read.</div>';
+    const token = store.get();
+    if (!token){ mark('tok', 'fail', 'No token yet. Follow the steps on the right, then tap ⚙︎ and paste it.'); skipFrom('gh', 'Needs a token first'); summary(false, 'Add your token in Settings'); return; }
+    mark('tok', 'pass', 'Stored in this browser only (…' + token.slice(-4) + ')');
+
+    let r; const t0 = performance.now();
+    try { r = await gh('', token); }
+    catch (e){ mark('gh', 'fail', e.name === 'AbortError' ? 'GitHub did not answer within 15 s.' : 'Could not reach GitHub. Check the connection, or turn off content blockers.'); skipFrom('repo', 'GitHub not reachable'); summary(false, 'FAIL — GitHub not reachable'); return; }
+    const ms = Math.round(performance.now() - t0);
+    if (r.status === 401){ mark('gh', 'fail', 'GitHub rejected the token (HTTP 401). It may be mistyped or expired.'); skipFrom('repo', 'Token not accepted'); summary(false, 'FAIL — token not accepted'); return; }
+    if (r.status === 403 || r.status === 429){ mark('gh', 'fail', `GitHub refused the request (HTTP ${r.status}). Wait a minute and run again.`); skipFrom('repo', 'Refused'); summary(false, 'FAIL — refused by GitHub'); return; }
+    mark('gh', 'pass', `GitHub answered in ${ms} ms`);
+    if (r.status === 404){ mark('repo', 'fail', 'The token can\'t see Logs. Edit the token on GitHub and add Logs under Repository access.'); skipFrom('branch', 'No access to Logs'); summary(false, 'FAIL — token has no access to Logs'); return; }
+    if (!r.ok){ mark('repo', 'fail', `Unexpected reply (HTTP ${r.status}).`); skipFrom('branch', 'Unexpected reply'); summary(false, 'FAIL — unexpected reply'); return; }
+    let info = {}; try { info = await r.json(); } catch {}
+    mark('repo', 'pass', info.private ? 'Logs found, and it is private' : 'Logs found');
+
+    try { r = await gh('/branches/' + BRANCH, token); } catch { r = null; }
+    if (!r || !r.ok){ mark('branch', 'fail', r && r.status === 404 ? `No "${BRANCH}" branch in Logs yet.` : 'Could not check the branch.'); skipFrom('read', 'No data branch'); summary(false, 'FAIL — data branch missing'); return; }
+    mark('branch', 'pass', `"${BRANCH}" branch exists`);
+
+    try { r = await gh(`/contents/${FILE}?ref=${BRANCH}`, token, true); } catch { r = null; }
+    if (!r || !r.ok){ mark('read', 'fail', r && r.status === 404 ? `${FILE} is missing from the branch.` : `Could not read ${FILE}${r ? ' (HTTP ' + r.status + ')' : ''}.`); skipFrom('fresh', 'File not read'); summary(false, 'FAIL — could not read the data file'); return; }
+    let data; try { data = JSON.parse(await r.text()); } catch { mark('read', 'fail', 'The file was read but is not valid data.'); skipFrom('fresh', 'Bad file'); summary(false, 'FAIL — data file is damaged'); return; }
+    mark('read', 'pass', `${FILE} read from the "${BRANCH}" branch`);
+
+    const pushed = Date.parse(data.pushed_at || '');
+    const age = Date.now() - pushed;
+    const fromMac = data.source === 'mac-mini';
+    if (isNaN(pushed)) mark('fresh', 'fail', 'The file has no push time.');
+    else if (!fromMac) mark('fresh', 'info', `Setup test file, pushed ${ago(age)}. The Mac mini push job isn't running yet.`);
+    else mark('fresh', age <= FRESH_MIN * 60000 ? 'pass' : 'fail', `Mac mini last pushed ${ago(age)}` + (age > FRESH_MIN * 60000 ? ` (expected every 15 min)` : ''));
+
+    const readOk = !isNaN(pushed) && (!fromMac || age <= FRESH_MIN * 60000);
+    summary(readOk, readOk ? 'PASS — this device can read Station data from anywhere' : 'PARTIAL — reading works, data is stale');
+    const when = isNaN(pushed) ? '—' : new Date(pushed).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+    $('file').innerHTML = `<dl class="kv"><dt>Pushed</dt><dd class="y">${esc(when)}</dd><dt>From</dt><dd>${esc(fromMac ? 'Mac mini' : 'Setup test')}</dd><dt>Message</dt><dd>${esc(data.message || '—')}</dd></dl>`;
+  }
+
+  /* settings pop-up */
+  const ov = $('ov'), tok = $('tok'), msg = $('msg');
+  const say = (c, t) => { msg.style.color = c; msg.textContent = t; };
+  function openSet(){ tok.value = store.get(); tok.type = 'password'; $('showBtn').textContent = 'Show'; msg.textContent = ''; ov.classList.add('open'); setTimeout(() => tok.focus(), 50); }
+  function closeSet(){ ov.classList.remove('open'); }
+  $('setBtn').onclick = openSet;
+  $('closeBtn').onclick = closeSet;
+  ov.addEventListener('click', e => { if (e.target === ov) closeSet(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSet(); });
+  $('showBtn').onclick = () => { const h = tok.type === 'password'; tok.type = h ? 'text' : 'password'; $('showBtn').textContent = h ? 'Hide' : 'Show'; };
+  $('saveBtn').onclick = () => {
+    const v = tok.value.trim();
+    if (!v) return say('var(--bad)', 'Paste a token first.');
+    if (!store.set(v)) return say('var(--bad)', 'This browser blocked saving (private mode?).');
+    closeSet(); run();
+  };
+  $('copyBtn').onclick = async () => {
+    const v = store.get();
+    if (!v) return say('var(--bad)', 'No saved token to copy.');
+    try { await navigator.clipboard.writeText(v); say('var(--ok)', 'Token copied.'); }
+    catch { tok.type = 'text'; tok.value = v; tok.select(); say('var(--y)', 'Copy blocked — token selected, copy it manually.'); }
+  };
+  $('delBtn').onclick = () => {
+    if (!store.get()) return say('var(--bad)', 'No saved token to remove.');
+    if (!confirm('Remove the GitHub token from this device?')) return;
+    store.del(); tok.value = ''; say('var(--ok)', 'Token removed.'); run();
+  };
+  $('runBtn').onclick = run;
+
+  /* hover hints */
+  const hint = $('hint');
+  document.addEventListener('mouseover', e => {
+    const el = e.target.closest('[data-hint]'); if (!el){ hint.classList.remove('show'); return; }
+    hint.textContent = el.dataset.hint;
+    const r = el.getBoundingClientRect(); hint.classList.add('show');
+    const w = hint.offsetWidth, h = hint.offsetHeight;
+    const x = Math.min(Math.max(8, r.left + r.width / 2 - w / 2), innerWidth - w - 8);
+    let y = r.bottom + 8; if (y + h > innerHeight - 8) y = r.top - h - 8;
+    hint.style.left = x + 'px'; hint.style.top = y + 'px';
+  });
+  document.addEventListener('mouseout', e => { if (!e.relatedTarget || !e.relatedTarget.closest?.('[data-hint]')) hint.classList.remove('show'); });
+
+  run(); // start immediately — no waiting
+})();
+</script>
+</body>
+</html>
