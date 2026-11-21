@@ -69,7 +69,7 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;ali
 <header>
   <img src="apple-touch-icon.png" alt="">
   <h1>Remote <i>Test</i></h1>
-  <span class="ver" data-hint="Version of this test page">v0.1</span>
+  <span class="ver" data-hint="Version of this test page">v0.2</span>
   <button class="ib" id="runBtn" data-hint="Run all tests again" aria-label="Run tests">↻</button>
   <button class="ib" id="setBtn" data-hint="Settings: add, copy or remove your GitHub token" aria-label="Settings">⚙︎</button>
 </header>
@@ -116,7 +116,7 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;ali
 
 <script>
 (() => {
-  const VERSION = 'v0.1';
+  const VERSION = 'v0.2';
   const OWNER = 'voodoovid', REPO = 'logs', BRANCH = 'live', FILE = 'test.json';
   const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
   const FRESH_MIN = 20; // the Mac mini pushes every 15 min, so older than 20 min means a missed push
@@ -160,7 +160,7 @@ main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;ali
       });
     } finally { clearTimeout(to); }
   }
-  const ago = ms => { const m = Math.round(ms / 60000); return m < 1 ? 'under a minute ago' : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.floor(m/60)} h ${m%60} min ago` : `${Math.floor(m/1440)} days ago`; };
+  const ago = ms => { const m = Math.round(ms / 60000); return m < 1 ? 'under a minute ago' : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.floor(m/60)} h ${m%60} min ago` : `${Math.floor(m/1440)} day${Math.floor(m/1440) === 1 ? '' : 's'} ago`; };
 
   async function run(){
     reset();
